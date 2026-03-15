@@ -1,0 +1,36 @@
+# Visual Studio cache
+.vs/
+
+# Build results
+bin/
+obj/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+*.log
+
+# NuGet packages
+*.nupkg
+*.snupkg
+packages/
+
+# Backup & temp files
+*.bak
+*.tmp
+*.temp
+
+# Publish output
+publish/
+
+# ASP.NET scaffolding
+ScaffoldingReadMe.txt
+
+# Others
+*.dbmdl
+*.jfm
