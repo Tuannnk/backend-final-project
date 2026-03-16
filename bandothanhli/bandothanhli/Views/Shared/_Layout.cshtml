@@ -24,8 +24,40 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Home">Sản phẩm</a>
                         </li>
+                    </ul>
+
+                    <ul class="navbar-nav">
+                        @if (User?.Identity?.IsAuthenticated ?? false)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="me-1">@User.Identity.Name</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Profile">Trang cá nhân</a>
+                                    </li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <form asp-area="" asp-controller="Auth" asp-action="Logout" method="post" class="m-0">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="AuthView" asp-action="DangNhap">Đăng nhập</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="AuthView" asp-action="DangKy">Đăng ký</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
