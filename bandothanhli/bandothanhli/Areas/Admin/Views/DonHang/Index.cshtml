@@ -1,0 +1,103 @@
+﻿@using bandothanhli.Areas.Admin.Models
+@model List<DonHangVM>
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Đơn hàng";
+}
+
+<ul class="nav nav-pills mb-3 flex-wrap gap-1">
+    @foreach (var (val, label) in new[]{
+        ("",           "Tất cả"),
+        ("ChoPhanHoi", "Chờ phản hồi"),
+        ("DaXacNhan",  "Đã xác nhận"),
+        ("DangGiao",   "Đang giao"),
+        ("DaGiao",     "Đã giao"),
+        ("HuyDon",     "Huỷ đơn")
+    })
+    {
+        <li class="nav-item">
+            <a class="nav-link py-1 px-3 @(ViewBag.TrangThai == val ? "active" : "")"
+               asp-action="Index" asp-route-trangThai="@val"
+               style="font-size:.83rem">@label</a>
+        </li>
+    }
+</ul>
+
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-cart3 me-2"></i>Đơn hàng (@ViewBag.TongSo)
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-3">Mã đơn</th>
+                    <th>Người mua</th>
+                    <th class="text-center">Số SP</th>
+                    <th>Tổng tiền</th>
+                    <th>Thanh toán</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày đặt</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var dh in Model)
+                {
+                    <tr>
+                        <td class="ps-3">
+                            <code class="small">#@dh.Id.ToString()[..8]</code>
+                        </td>
+                        <td>
+                            <div class="fw-semibold small">@dh.TenNguoiMua</div>
+                            <div class="text-muted" style="font-size:.72rem">@dh.EmailNguoiMua</div>
+                        </td>
+                        <td class="text-center small">@dh.SoSanPham</td>
+                        <td class="fw-semibold text-danger small">@dh.TongTien.ToString("N0")đ</td>
+                        <td>
+                            <span class="badge-tt tt-@dh.TrangThaiThanhToan">
+                                @(dh.TrangThaiThanhToan == "DaThanhToan" ? "Đã TT" : "Chưa TT")
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge-tt tt-@dh.TrangThai">@dh.TrangThai</span>
+                        </td>
+                        <td class="small text-muted">@dh.NgayTao.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="text-center">
+                            <a asp-action="ChiTiet" asp-route-id="@dh.Id"
+                                   class="btn btn-sm btn-primary btn-action">
+                                <i class="bi bi-eye me-1"></i>Chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>Không có đơn hàng
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if ((int)ViewBag.TongTrang > 1)
+    {
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <small class="text-muted">Trang @ViewBag.TrangHienTai / @ViewBag.TongTrang</small>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    @for (int i = 1; i <= (int)ViewBag.TongTrang; i++)
+                    {
+                        <li class="page-item @(i == (int)ViewBag.TrangHienTai ? "active" : "")">
+                            <a class="page-link" asp-action="Index"
+                               asp-route-trang="@i"
+                               asp-route-trangThai="@ViewBag.TrangThai">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    }
+</div>

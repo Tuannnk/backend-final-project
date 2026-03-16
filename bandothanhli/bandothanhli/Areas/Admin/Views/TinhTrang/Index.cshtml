@@ -1,0 +1,67 @@
+﻿@using bandothanhli.Areas.Admin.Models
+@model List<TinhTrangVM>
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Tình trạng sản phẩm";
+}
+
+<div class="d-flex justify-content-end mb-3">
+    <a asp-action="Them" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg me-1"></i>Thêm tình trạng
+    </a>
+</div>
+<div class="card">
+    <div class="card-header">
+        <i class="bi bi-stars me-2"></i>Tình trạng sản phẩm (@Model.Count)
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-3">Tên tình trạng</th>
+                    <th class="text-center">Điểm</th>
+                    <th>Mô tả</th>
+                    <th class="text-center">Số SP</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model)
+                {
+                    <tr>
+                        <td class="ps-3 fw-semibold small">@t.TenTinhTrang</td>
+                        <td class="text-center">
+                            @{
+                                var bg = t.DiemTinhTrang >= 80 ? "#dcfce7"
+                                       : t.DiemTinhTrang >= 50 ? "#fef3c7" : "#fee2e2";
+                                var fg = t.DiemTinhTrang >= 80 ? "#16a34a"
+                                       : t.DiemTinhTrang >= 50 ? "#d97706" : "#dc2626";
+                            }
+                            <span class="badge-tt" style="background:@bg;color:@fg">
+                                @t.DiemTinhTrang/100
+                            </span>
+                        </td>
+                        <td class="small text-muted">@(t.MoTa == "" ? "—" : t.MoTa)</td>
+                        <td class="text-center">
+                            <span class="badge bg-light text-dark">@t.SoSanPham</span>
+                        </td>
+                        <td class="text-center">
+                            <a asp-action="Sua" asp-route-id="@t.Id"
+                                   class="btn btn-sm btn-light btn-action me-1">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form asp-action="Xoa" asp-route-id="@t.Id"
+                                  method="post" class="d-inline"
+                                  onsubmit="return confirm('Xóa tình trạng @t.TenTinhTrang?')">
+                                @Html.AntiForgeryToken()
+                                <button class="btn btn-sm btn-danger btn-action">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

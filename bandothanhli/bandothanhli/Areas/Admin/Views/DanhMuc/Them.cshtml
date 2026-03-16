@@ -1,0 +1,81 @@
+﻿@using bandothanhli.Areas.Admin.Models
+@model DanhMucVM
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Thêm danh mục";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-plus-circle me-2 text-primary"></i>Thêm danh mục mới
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Luu" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Tên danh mục <span class="text-danger">*</span></label>
+                        <input asp-for="TenDanhMuc" class="form-control" id="tenInput"
+                               placeholder="Nhập tên danh mục..." />
+                        <span asp-validation-for="TenDanhMuc" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Slug</label>
+                        <input asp-for="Slug" class="form-control" id="slugInput"
+                               placeholder="tu-dong-tao-tu-ten" />
+                        <div class="form-text">Tự động tạo từ tên nếu để trống</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">Icon URL</label>
+                        <input asp-for="IconUrl" class="form-control"
+                               placeholder="https://..." />
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-semibold">Thứ tự</label>
+                            <input asp-for="ThuTu" type="number" class="form-control" min="0" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small fw-semibold">Danh mục cha</label>
+                            <select asp-for="DanhMucChaId" class="form-select">
+                                <option value="">— Không có —</option>
+                                @foreach (var item in (List<bandothanhli.Models.DanhMuc>)ViewBag.DanhSachCha)
+                                {
+                                    <option value="@item.Id">@item.TenDanhMuc</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end mt-2">
+                        <a asp-action="Index" class="btn btn-light px-4">
+                            <i class="bi bi-x-lg me-1"></i>Hủy
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-plus-lg me-1"></i>Thêm danh mục
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('tenInput').addEventListener('input', function () {
+            const slug = this.value.toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd')
+                .replace(/[^a-z0-9\s-]/g, '')
+                .trim().replace(/\s+/g, '-');
+            document.getElementById('slugInput').value = slug;
+        });
+    </script>
+}

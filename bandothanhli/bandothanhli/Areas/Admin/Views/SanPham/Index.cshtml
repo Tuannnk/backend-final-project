@@ -1,0 +1,178 @@
+﻿@using bandothanhli.Areas.Admin.Models
+@using bandothanhli.Models
+@model List<SanPhamVM>
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Sản phẩm";
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-box-seam me-2"></i>Danh sách sản phẩm (@ViewBag.TongSo)</span>
+    </div>
+    <div class="card-body border-bottom py-2">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <input type="text" name="tuKhoa" value="@ViewBag.TuKhoa"
+                       class="form-control form-control-sm"
+                       placeholder="Tìm tiêu đề, người bán..." />
+            </div>
+            <div class="col-md-3">
+                <select name="danhMucId" class="form-select form-select-sm">
+                    <option value="">Tất cả danh mục</option>
+                    @foreach (var dm in (List<DanhMuc>)ViewBag.DanhSachDanhMuc)
+                    {
+                        <option value="@dm.Id"
+                            @(ViewBag.DanhMucId?.ToString() == dm.Id.ToString() ? "selected" : "")>
+                            @dm.TenDanhMuc
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="trangThai" class="form-select form-select-sm">
+                    <option value="">Tất cả</option>
+                    @foreach (var tt in new[] { "DangBan", "DaBan", "AnHang" })
+                    {
+                        <option value="@tt" @(ViewBag.TrangThai == tt ? "selected" : "")>@tt</option>
+                    }
+                </select>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-sm btn-primary">
+                    <i class="bi bi-search me-1"></i>Lọc
+                </button>
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary ms-1">Reset</a>
+            </div>
+        </form>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-3">Sản phẩm</th>
+                    <th>Người bán</th>
+                    <th>Danh mục</th>
+                    <th>Tình trạng</th>
+                    <th>Giá</th>
+                    <th>Đánh giá</th>
+                    <th>Trạng thái</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var sp in Model)
+                {
+                    <tr>
+                        <td class="ps-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="@(sp.AnhDaiDien ?? "/images/no-image.png")"
+                                     style="width:42px;height:42px;object-fit:cover;
+                                border-radius:8px;border:1px solid #e2e8f0;flex-shrink:0" />
+                                <div>
+                                    <div class="fw-semibold small"
+                                         style="max-width:160px;overflow:hidden;
+                                        text-overflow:ellipsis;white-space:nowrap"
+                                         title="@sp.TieuDe">
+                                        @sp.TieuDe
+                                    </div>
+                                    <div class="text-muted" style="font-size:.72rem">@sp.DiaDiem</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="small fw-semibold">@sp.TenNguoiBan</div>
+                            <div class="text-muted" style="font-size:.72rem">@sp.EmailNguoiBan</div>
+                        </td>
+                        <td class="small text-muted">@sp.TenDanhMuc</td>
+                        <td class="small">@sp.TenTinhTrang</td>
+                        <td>
+                            <div class="fw-semibold text-danger small">@sp.Gia.ToString("N0")đ</div>
+                            @if (sp.GiaGoc > sp.Gia)
+                            {
+                                <div class="text-muted text-decoration-line-through"
+                                     style="font-size:.72rem">
+                                    @sp.GiaGoc.ToString("N0")đ
+                                </div>
+                            }
+                        </td>
+                        <td class="small">
+                            @if (sp.SoDanhGia > 0)
+                            {
+                                <span class="text-warning">★</span>
+                                @sp.DiemTrungBinh.ToString("F1")
+                                <span class="text-muted">(@sp.SoDanhGia)</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td>
+                            <span class="badge-tt tt-@sp.TrangThai">@sp.TrangThai</span>
+                        </td>
+                        <td class="text-center">
+                            <div class="dropdown d-inline">
+                                <button class="btn btn-sm btn-light btn-action dropdown-toggle"
+                                        data-bs-toggle="dropdown">
+                                    <i class="bi bi-toggles"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    @foreach (var tt in new[] { "DangBan", "DaBan", "AnHang" })
+                                    {
+                                        <li>
+                                            <form asp-action="DoiTrangThai" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@sp.Id" />
+                                                <input type="hidden" name="trangThai" value="@tt" />
+                                                <button type="submit"
+                                                        class="dropdown-item small @(sp.TrangThai == tt ? "fw-bold" : "")">
+                                                    @(sp.TrangThai == tt ? "✓ " : "")@tt
+                                                </button>
+                                            </form>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                            <form asp-action="Xoa" asp-route-id="@sp.Id"
+                                  method="post" class="d-inline"
+                                  onsubmit="return confirm('Xóa sản phẩm này?')">
+                                @Html.AntiForgeryToken()
+                                <button class="btn btn-sm btn-danger btn-action ms-1">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>Không có sản phẩm
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if ((int)ViewBag.TongTrang > 1)
+    {
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <small class="text-muted">Trang @ViewBag.TrangHienTai / @ViewBag.TongTrang</small>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    @for (int i = 1; i <= (int)ViewBag.TongTrang; i++)
+                    {
+                        <li class="page-item @(i == (int)ViewBag.TrangHienTai ? "active" : "")">
+                            <a class="page-link" asp-action="Index"
+                               asp-route-trang="@i"
+                               asp-route-tuKhoa="@ViewBag.TuKhoa"
+                               asp-route-trangThai="@ViewBag.TrangThai">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    }
+</div>

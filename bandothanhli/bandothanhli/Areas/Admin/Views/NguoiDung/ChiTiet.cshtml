@@ -1,0 +1,123 @@
+﻿@using bandothanhli.Areas.Admin.Models
+@model List<NguoiDungVM>
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Người dùng";
+}
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-people me-2"></i>Danh sách người dùng (@ViewBag.TongSo)</span>
+    </div>
+    <div class="card-body border-bottom py-2">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <input type="text" name="tuKhoa" value="@ViewBag.TuKhoa"
+                       class="form-control form-control-sm"
+                       placeholder="Tìm tên, email, số điện thoại..." />
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-sm btn-primary">
+                    <i class="bi bi-search me-1"></i>Tìm
+                </button>
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary ms-1">Reset</a>
+            </div>
+        </form>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-3">Người dùng</th>
+                    <th>Số điện thoại</th>
+                    <th class="text-center">SP đăng</th>
+                    <th class="text-center">Đơn hàng</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày tạo</th>
+                    <th class="text-center">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in Model)
+                {
+                    <tr>
+                        <td class="ps-3">
+                            <div class="fw-semibold small">@u.HoTen</div>
+                            <div class="text-muted" style="font-size:.75rem">@u.Email</div>
+                        </td>
+                        <td class="small">@u.SoDienThoai</td>
+                        <td class="text-center">
+                            <span class="badge bg-light text-dark">@u.TongSanPham</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-light text-dark">@u.TongDonHang</span>
+                        </td>
+                        <td>
+                            @if (u.DaXacThuc)
+                            {
+                                <span class="badge-tt tt-DaGiao">
+                                    <i class="bi bi-check-circle me-1"></i>Hoạt động
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge-tt tt-HuyDon">
+                                    <i class="bi bi-x-circle me-1"></i>Chưa xác thực
+                                </span>
+                            }
+                        </td>
+                        <td class="small text-muted">@u.NgayTao.ToString("dd/MM/yyyy")</td>
+                        <td class="text-center">
+                            <a asp-action="ChiTiet" asp-route-id="@u.Id"
+                                   class="btn btn-sm btn-light btn-action me-1">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <form asp-action="DoiTrangThai" asp-route-id="@u.Id"
+                                  method="post" class="d-inline"
+                                  onsubmit="return confirm('Thay đổi trạng thái?')">
+                                @Html.AntiForgeryToken()
+                                <button class="btn btn-sm btn-action @(u.DaXacThuc ? "btn-warning" : "btn-success")">
+                                    <i class="bi @(u.DaXacThuc ? "bi-lock" : "bi-unlock")"></i>
+                                </button>
+                            </form>
+                            <form asp-action="Xoa" asp-route-id="@u.Id"
+                                  method="post" class="d-inline"
+                                  onsubmit="return confirm('Xóa tài khoản này?')">
+                                @Html.AntiForgeryToken()
+                                <button class="btn btn-sm btn-danger btn-action ms-1">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>Không có dữ liệu
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if ((int)ViewBag.TongTrang > 1)
+    {
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <small class="text-muted">Trang @ViewBag.TrangHienTai / @ViewBag.TongTrang</small>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    @for (int i = 1; i <= (int)ViewBag.TongTrang; i++)
+                    {
+                        <li class="page-item @(i == (int)ViewBag.TrangHienTai ? "active" : "")">
+                            <a class="page-link" asp-action="Index"
+                               asp-route-trang="@i"
+                               asp-route-tuKhoa="@ViewBag.TuKhoa">@i</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    }
+</div>

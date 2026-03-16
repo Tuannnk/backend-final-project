@@ -1,0 +1,59 @@
+﻿@using bandothanhli.Areas.Admin.Models
+@model TinhTrangVM
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Sửa tình trạng";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-pencil me-2 text-warning"></i>Sửa tình trạng
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Luu" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">
+                            Tên tình trạng <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="TenTinhTrang" class="form-control" />
+                        <span asp-validation-for="TenTinhTrang" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold">
+                            Điểm tình trạng:
+                            <span id="diemVal" class="text-primary fw-bold">@Model.DiemTinhTrang</span>/100
+                        </label>
+                        <input asp-for="DiemTinhTrang" type="range" min="0" max="100"
+                               class="form-range"
+                               oninput="document.getElementById('diemVal').innerText=this.value" />
+                        <div class="d-flex justify-content-between small text-muted mt-1">
+                            <span>0 - Kém</span>
+                            <span>50 - Trung bình</span>
+                            <span>100 - Tốt</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small fw-semibold">Mô tả</label>
+                        <textarea asp-for="MoTa" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end">
+                        <a asp-action="Index" class="btn btn-light px-4">
+                            <i class="bi bi-x-lg me-1"></i>Hủy
+                        </a>
+                        <button type="submit" class="btn btn-warning px-4 fw-semibold">
+                            <i class="bi bi-check-lg me-1"></i>Cập nhật
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

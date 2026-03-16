@@ -1,0 +1,246 @@
+﻿@using bandothanhli.Areas.Admin.Models
+@model DonHangChiTietVM
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi tiết đơn hàng";
+}
+
+<div class="row g-3">
+    <!-- CỘT TRÁI -->
+    <div class="col-lg-8">
+
+        <!-- Sản phẩm -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="bi bi-box me-2"></i>Sản phẩm trong đơn
+            </div>
+            <div class="card-body p-0">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-3">Sản phẩm</th>
+                            <th class="text-center">SL</th>
+                            <th class="text-end">Đơn giá</th>
+                            <th class="text-end pe-3">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ct in Model.ChiTiet)
+                        {
+                            <tr>
+                                <td class="ps-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="@(ct.AnhDaiDien ?? "/images/no-image.png")"
+                                             style="width:46px;height:46px;object-fit:cover;border-radius:8px" />
+                                        <span class="fw-semibold small">@ct.TieuDe</span>
+                                    </div>
+                                </td>
+                                <td class="text-center small">@ct.SoLuong</td>
+                                <td class="text-end small">@ct.GiaTaiThoiDiem.ToString("N0")đ</td>
+                                <td class="text-end pe-3 fw-semibold text-danger small">
+                                    @ct.ThanhTien.ToString("N0")đ
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr style="background:#f8fafc">
+                            <td colspan="3" class="text-end fw-bold small ps-3">Tổng cộng</td>
+                            <td class="text-end pe-3 fw-bold text-danger">
+                                @Model.TongTien.ToString("N0")đ
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- Lịch sử theo dõi -->
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-clock-history me-2"></i>Lịch sử trạng thái
+            </div>
+            <div class="card-body">
+                <!-- Form thêm -->
+                <form asp-action="ThemTheoDoi" method="post"
+                      class="p-3 rounded mb-4"
+                      style="background:#f8fafc;border:1.5px dashed #e2e8f0">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="DonHangId" value="@Model.Id" />
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <select name="TrangThai" class="form-select form-select-sm" required>
+                                <option value="">— Chọn trạng thái —</option>
+                                @foreach (var tt in new[]{
+                                    "ChoPhanHoi","DaXacNhan","DangGiao","DaGiao","HuyDon"
+                                })
+                                {
+                                    <option value="@tt">@tt</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" name="GhiChu"
+                                   class="form-control form-control-sm"
+                                   placeholder="Ghi chú (tùy chọn)..." />
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary btn-sm w-100">
+                                <i class="bi bi-plus-lg"></i> Thêm
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Timeline -->
+                <div class="position-relative ps-4"
+                     style="border-left:2px solid #e2e8f0">
+                    @foreach (var td in Model.LichSuTheoDoi)
+                    {
+                        <div class="mb-3 position-relative">
+                            <div class="position-absolute"
+                                 style="left:-21px;top:3px;width:12px;height:12px;
+                                background:#f97316;border-radius:50%;border:2px solid #fff">
+                            </div>
+                            <div class="fw-semibold small
+                                @(td.TrangThai == "DaGiao" ? "text-success" :
+                                                                   td.TrangThai == "HuyDon" ? "text-danger" : "text-primary")">
+                                @td.TrangThai
+                            </div>
+                            @if (!string.IsNullOrEmpty(td.GhiChu))
+                            {
+                                <div class="text-muted small">@td.GhiChu</div>
+                            }
+                            <div class="text-muted" style="font-size:.72rem">
+                                @td.NgayCapNhat.ToString("dd/MM/yyyy HH:mm")
+                            </div>
+                        </div>
+                    }
+                    @if (!Model.LichSuTheoDoi.Any())
+                    {
+                        <p class="text-muted small mb-0">Chưa có lịch sử theo dõi</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CỘT PHẢI -->
+    <div class="col-lg-4">
+
+        <!-- Trạng thái -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="bi bi-info-circle me-2"></i>Thông tin đơn
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <span class="badge-tt tt-@Model.TrangThai"
+                          style="font-size:.9rem;padding:6px 18px">
+                        @Model.TrangThai
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between mb-2 small">
+                    <span class="text-muted">Mã đơn</span>
+                    <code>#@Model.Id.ToString()[..8]</code>
+                </div>
+                <div class="d-flex justify-content-between mb-2 small">
+                    <span class="text-muted">Ngày đặt</span>
+                    <span>@Model.NgayTao.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2 small">
+                    <span class="text-muted">Cập nhật</span>
+                    <span>@Model.NgayCapNhat.ToString("dd/MM/yyyy HH:mm")</span>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.GhiChu))
+                {
+                    <div class="small p-2 rounded mt-2" style="background:#f8fafc">
+                        <i class="bi bi-chat-text me-1 text-muted"></i>@Model.GhiChu
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Người mua -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="bi bi-person me-2"></i>Người mua
+            </div>
+            <div class="card-body small">
+                <div class="fw-semibold mb-1">@Model.TenNguoiMua</div>
+                <div class="text-muted mb-1">
+                    <i class="bi bi-envelope me-1"></i>@Model.EmailNguoiMua
+                </div>
+                <div class="text-muted mb-2">
+                    <i class="bi bi-phone me-1"></i>@Model.SdtNguoiMua
+                </div>
+                <div class="p-2 rounded" style="background:#f8fafc">
+                    <i class="bi bi-geo-alt me-1 text-danger"></i>@Model.DiaChiGiao
+                </div>
+            </div>
+        </div>
+
+        <!-- Thanh toán -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <i class="bi bi-credit-card me-2"></i>Thanh toán
+            </div>
+            <div class="card-body small">
+                @if (Model.ThanhToan != null)
+                {
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Phương thức</span>
+                        <span class="fw-semibold">@Model.ThanhToan.PhuongThuc</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Số tiền</span>
+                        <span class="fw-semibold text-danger">
+                            @Model.ThanhToan.SoTien.ToString("N0")đ
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Trạng thái</span>
+                        <span class="badge-tt tt-@Model.ThanhToan.TrangThai">
+                            @Model.ThanhToan.TrangThai
+                        </span>
+                    </div>
+
+                    @if (Model.ThanhToan.TrangThai != "DaThanhToan")
+                    {
+                        <form asp-action="XacNhanThanhToan" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="DonHangId" value="@Model.Id" />
+                            <input type="text" name="MaGiaoDich"
+                                   class="form-control form-control-sm mb-2"
+                                   placeholder="Mã giao dịch (nếu có)" />
+                            <button class="btn btn-success btn-sm w-100 fw-semibold">
+                                <i class="bi bi-check-circle me-1"></i>Xác nhận đã thanh toán
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="text-muted">
+                            Ngày TT:
+                            @Model.ThanhToan.NgayThanhToan?.ToString("dd/MM/yyyy HH:mm")
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.ThanhToan.MaGiaoDich))
+                        {
+                            <div class="mt-1">
+                                Mã GD: <code>@Model.ThanhToan.MaGiaoDich</code>
+                            </div>
+                        }
+                    }
+                }
+                else
+                {
+                    <p class="text-muted mb-0">Chưa có thông tin thanh toán</p>
+                }
+            </div>
+        </div>
+
+        <a asp-action="Index" class="btn btn-light btn-sm w-100">
+            <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
+        </a>
+    </div>
+</div>
