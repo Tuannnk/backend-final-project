@@ -1,0 +1,174 @@
+﻿@{
+    ViewData["Title"] = "Đăng ký";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - Bán Đồ Thanh Lý</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+            body { background: #f5f5f5; }
+            .auth-card {
+                max-width: 480px;
+                margin: 60px auto;
+                background: #fff;
+                border-radius: 12px;
+                box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+                padding: 40px;
+            }
+            .btn-primary { background: #e74c3c; border: none; }
+            .btn-primary:hover { background: #c0392b; }
+            .otp-box { display: none; }
+            .otp-input {
+                letter-spacing: 12px;
+                font-size: 24px;
+                text-align: center;
+            }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="text-center mb-4">
+            <h4 class="fw-bold">🛒 Bán Đồ Thanh Lý</h4>
+            <p class="text-muted">Tạo tài khoản mới</p>
+        </div>
+
+        <!-- Form đăng ký -->
+        <div id="formDangKy">
+            <div class="mb-3">
+                <label class="form-label">Họ tên</label>
+                <input type="text" id="hoTen" class="form-control" placeholder="Nguyễn Văn A">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" id="email" class="form-control" placeholder="example@gmail.com">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Số điện thoại</label>
+                <input type="text" id="soDienThoai" class="form-control" placeholder="0901234567">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mật khẩu</label>
+                <input type="password" id="matKhau" class="form-control" placeholder="Ít nhất 6 ký tự">
+            </div>
+            <div id="errorDangKy" class="text-danger mb-2" style="display:none;"></div>
+            <button class="btn btn-primary w-100" onclick="dangKy()">Đăng ký</button>
+            <p class="text-center mt-3 mb-0">
+                Đã có tài khoản? <a href="/auth/dang-nhap">Đăng nhập</a>
+            </p>
+        </div>
+
+        <!-- Form nhập OTP -->
+        <div id="formOtp" class="otp-box">
+            <div class="text-center mb-4">
+                <div style="font-size: 48px;">📧</div>
+                <h5 class="fw-bold">Xác minh email</h5>
+                <p class="text-muted">Mã OTP đã được gửi đến <b id="emailHienThi"></b></p>
+            </div>
+            <div class="mb-3">
+                <input type="text" id="maOtp" class="form-control otp-input" maxlength="6" placeholder="000000">
+            </div>
+            <div id="errorOtp" class="text-danger mb-2" style="display:none;"></div>
+            <button class="btn btn-primary w-100" onclick="xacMinhOtp()">Xác minh</button>
+            <div class="text-center mt-3">
+                <span class="text-muted">Không nhận được mã? </span>
+                <a href="#" onclick="guiLaiOtp()">Gửi lại</a>
+            </div>
+        </div>
+
+        <!-- Thành công -->
+        <div id="thanhCong" style="display:none; text-align:center;">
+            <div style="font-size: 64px;">✅</div>
+            <h5 class="fw-bold mt-3">Đăng ký thành công!</h5>
+            <p class="text-muted">Tài khoản của bạn đã được xác minh.</p>
+            <a href="/auth/dang-nhap" class="btn btn-primary w-100">Đăng nhập ngay</a>
+        </div>
+    </div>
+
+    <script>
+            let emailDangKy = '';
+
+            async function dangKy() {
+                const hoTen = document.getElementById('hoTen').value;
+                const email = document.getElementById('email').value;
+                const soDienThoai = document.getElementById('soDienThoai').value;
+                const matKhau = document.getElementById('matKhau').value;
+                const errorEl = document.getElementById('errorDangKy');
+
+                if (!hoTen || !email || !soDienThoai || !matKhau) {
+                    errorEl.textContent = 'Vui lòng điền đầy đủ thông tin';
+                    errorEl.style.display = 'block';
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/api/auth/dang-ky', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ hoTen, email, soDienThoai, matKhau })
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        emailDangKy = email;
+                        document.getElementById('emailHienThi').textContent = email;
+                        document.getElementById('formDangKy').style.display = 'none';
+                        document.getElementById('formOtp').style.display = 'block';
+                    } else {
+                        errorEl.textContent = data.message;
+                        errorEl.style.display = 'block';
+                    }
+                } catch (e) {
+                    errorEl.textContent = 'Lỗi kết nối server';
+                    errorEl.style.display = 'block';
+                }
+            }
+
+            async function xacMinhOtp() {
+                const maOtp = document.getElementById('maOtp').value;
+                const errorEl = document.getElementById('errorOtp');
+
+                if (maOtp.length !== 6) {
+                    errorEl.textContent = 'Vui lòng nhập đủ 6 số';
+                    errorEl.style.display = 'block';
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/api/auth/xac-minh-otp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: emailDangKy, maOtp })
+                    });
+
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        document.getElementById('formOtp').style.display = 'none';
+                        document.getElementById('thanhCong').style.display = 'block';
+                    } else {
+                        errorEl.textContent = data.message;
+                        errorEl.style.display = 'block';
+                    }
+                } catch (e) {
+                    errorEl.textContent = 'Lỗi kết nối server';
+                    errorEl.style.display = 'block';
+                }
+            }
+
+            async function guiLaiOtp() {
+                await fetch('/api/auth/dang-ky', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: emailDangKy })
+                });
+                alert('Đã gửi lại mã OTP!');
+            }
+    </script>
+</body>
+</html>

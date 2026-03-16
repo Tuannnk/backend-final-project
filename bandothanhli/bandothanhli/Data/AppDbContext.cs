@@ -19,6 +19,7 @@
         public DbSet<TheoDoidonHang> TheoDoidonHangs { get; set; }
         public DbSet<DanhGia> DanhGias { get; set; }
         public DbSet<TinNhan> TinNhans { get; set; }
+        public DbSet<OtpXacMinh> OtpXacMinhs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
