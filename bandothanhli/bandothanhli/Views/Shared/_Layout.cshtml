@@ -1,82 +1,296 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - bandothanhli</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - EcoShop</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/bandothanhli.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/shop.css" asp-append-version="true" /> <!-- File này chưa tồn tại -->
+
+    <!-- Thêm style tùy chỉnh inline cho nhanh (sau này chuyển sang file css) -->
+    <style>
+        :root {
+            --primary: #28a745; /* xanh lá eco */
+            --primary-dark: #218838;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            color: var(--primary) !important;
+            font-size: 1.6rem;
+        }
+
+            .navbar-brand i {
+                color: var(--primary);
+            }
+
+        .search-form {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .category-nav {
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 10px 0;
+        }
+
+        .category-item {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 15px;
+            color: #333;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+            .category-item i {
+                font-size: 1.8rem;
+                margin-bottom: 5px;
+                color: var(--primary);
+            }
+
+        .product-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+            .product-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+        .product-placeholder {
+            height: 180px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #ccc;
+        }
+
+        .chat-box {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 320px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+        }
+
+        .chat-header {
+            background: var(--primary);
+            color: white;
+            padding: 10px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Style cho dropdown user */
+        .dropdown-toggle::after {
+            display: none;
+        }
+
+        .dropdown-toggle:hover {
+            color: var(--primary) !important;
+            text-decoration: underline;
+        }
+
+        .dropdown-menu-end .dropdown-item {
+            transition: all 0.2s;
+        }
+
+        .dropdown-menu-end .dropdown-item:hover {
+            background-color: #f0f0f0;
+            color: var(--primary);
+        }
+
+        .dropdown-menu-end .dropdown-item.text-danger:hover {
+            background-color: #ffe6e6;
+            color: #dc3545;
+        }
+
+        /* Style cho nút Đăng nhập/Đăng ký */
+        .btn-outline-success:hover {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-success:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">bandothanhli</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Home">Sản phẩm</a>
-                        </li>
-                    </ul>
 
-                    <ul class="navbar-nav">
-                        @if (User?.Identity?.IsAuthenticated ?? false)
-                        {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-dark" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span class="me-1">@User.Identity.Name</span>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
-                                    <li>
-                                        <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Profile">Trang cá nhân</a>
-                                    </li>
-                                    <li><hr class="dropdown-divider" /></li>
-                                    <li>
-                                        <form asp-area="" asp-controller="Auth" asp-action="Logout" method="post" class="m-0">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="dropdown-item">Đăng xuất</button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="AuthView" asp-action="DangNhap">Đăng nhập</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="AuthView" asp-action="DangKy">Đăng ký</a>
-                            </li>
-                        }
-                    </ul>
+    <!-- Header -->
+    <header class="bg-white border-bottom shadow-sm">
+        <div class="container py-2">
+            <div class="d-flex align-items-center justify-content-between flex-wrap">
+                <!-- Logo -->
+                <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-leaf me-2"></i> EcoShop
+                </a>
+
+                <!-- Search -->
+                <form class="search-form d-flex my-2 my-lg-0" asp-controller="SanPham" asp-action="TimKiem">
+                    <input class="form-control me-2" type="search" placeholder="Tìm đồ cũ..." aria-label="Search" name="keyword">
+                    <button class="btn btn-success" type="submit"><i class="fas fa-search"></i></button>
+                </form>
+
+                <!-- Right icons -->
+                <div class="d-flex align-items-center gap-3">
+                    @if (User?.Identity?.IsAuthenticated ?? false)
+                    {
+                        <!-- Đã đăng nhập - Hiển thị dropdown với tên user -->
+                        <div class="dropdown">
+                            <a class="text-dark dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none;">
+                                <i class="fas fa-user-circle fa-lg me-2"></i>
+                                <span>@User.Identity.Name</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="fas fa-user me-2"></i>Trang cá nhân</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Cài đặt</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="post" class="m-0" onsubmit="handleLogout(event)">
+                                        <button type="submit" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Chưa đăng nhập - Hiển thị 2 nút -->
+                        <a class="btn btn-outline-success btn-sm" asp-controller="AuthView" asp-action="DangNhap">
+                            <i class="fas fa-sign-in-alt me-1"></i> Đăng nhập
+                        </a>
+                        <a class="btn btn-success btn-sm" asp-controller="AuthView" asp-action="DangKy">
+                            <i class="fas fa-user-plus me-1"></i> Đăng ký
+                        </a>
+                    }
+
+                    <!-- Giỏ hàng -->
+                    <a class="text-dark position-relative" asp-controller="GioHang" asp-action="Index" title="Giỏ hàng">
+                        <i class="fas fa-shopping-cart fa-lg"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                    </a>
                 </div>
             </div>
-        </nav>
+        </div>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    <!-- Danh mục (Category bar) -->
+    <nav class="category-nav">
+        <div class="container">
+            <a class="category-item" href="#"><i class="fas fa-utensils"></i>Thực phẩm</a>
+            <a class="category-item" href="#"><i class="fas fa-paw"></i>Thú cưng</a>
+            <a class="category-item" href="#"><i class="fas fa-user-friends"></i>Các bạn</a>
+            <a class="category-item" href="#"><i class="fas fa-couch"></i>Đồ dùng nhà</a>
+            <a class="category-item" href="#"><i class="fas fa-recycle"></i>Đồ cũ</a>
+            <a class="category-item" href="#"><i class="fas fa-medkit"></i>Dược phẩm</a>
+            <a class="category-item" href="#"><i class="fas fa-gift"></i>Thanh lý</a>
+            <a class="category-item" href="#"><i class="fas fa-heart"></i>Chăm sóc</a>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <!-- Footer -->
+    <footer class="bg-light border-top py-4 text-muted">
         <div class="container">
-            &copy; 2026 - bandothanhli - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row">
+                <div class="col-md-4">
+                    <h6>Hỗ trợ</h6>
+                    <ul class="list-unstyled">
+                        <li>Thanh lý đồ cũ</li>
+                        <li>Thanh lý giảm giá</li>
+                        <li>Giao hàng nhanh</li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6>Điều khoản</h6>
+                    <ul class="list-unstyled">
+                        <li>Điều khoản dịch vụ</li>
+                        <li>Chính sách bảo mật</li>
+                        <li>Liên hệ</li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6>Liên hệ</h6>
+                    <div class="d-flex gap-3">
+                        <i class="fab fa-facebook fa-2x"></i>
+                        <i class="fab fa-twitter fa-2x"></i>
+                        <i class="fab fa-pinterest fa-2x"></i>
+                        <i class="fab fa-youtube fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                &copy; 2026 - EcoShop - Nền tảng đồ cũ thân thiện môi trường
+            </div>
         </div>
     </footer>
+
+    <!-- Chat box mẫu (Tin nhắn mới) -->
+    <div class="chat-box" id="chatBox">
+        <div class="chat-header">
+            <div>Phương Thục</div>
+            <button class="btn-close btn-close-white" onclick="document.getElementById('chatBox').style.display='none'"></button>
+        </div>
+        <div class="p-3">
+            <p>Hỏi thái đồ cũ...</p>
+            <input type="text" class="form-control" placeholder="Nhập tin nhắn...">
+        </div>
+    </div>
+    <button class="btn btn-success position-fixed bottom-0 end-0 m-4 rounded-circle p-3 shadow" onclick="document.getElementById('chatBox').style.display='block'">
+        <i class="fas fa-comment fa-lg"></i>
+    </button>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        async function handleLogout(event) {
+            event.preventDefault();
+            try {
+                const response = await fetch('/api/auth/dang-xuat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    // Reload trang để cập nhật UI
+                    window.location.href = '/';
+                } else {
+                    alert('Đăng xuất thất bại');
+                }
+            } catch (error) {
+                console.error('Lỗi:', error);
+                alert('Có lỗi xảy ra');
+            }
+        }
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

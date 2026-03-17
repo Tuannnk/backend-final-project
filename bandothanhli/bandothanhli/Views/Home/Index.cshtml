@@ -1,8 +1,95 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using bandothanhli.Helpers
+@model List<bandothanhli.Models.SanPham>
+
+<div class="container my-5">
+    <h2 class="mb-4 text-center fw-bold text-success">Sản phẩm mới đăng</h2>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="text-center py-5 text-muted">
+            <h4>Chưa có sản phẩm nào</h4>
+            <p>Hãy kiểm tra lại sau hoặc đăng bán ngay nhé! 🌱</p>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var sp in Model)
+            {
+                <div class="col-md-4 col-sm-6">
+                    <div class="card border-3 border-warning h-100 shadow-sm overflow-hidden">
+                        @{
+                            var anhDaiDien = sp.AnhSanPhams?
+                                .FirstOrDefault(a => a.LaAnhDaiDien)?.DuongDanAnh
+                                ?? sp.AnhSanPhams?.FirstOrDefault()?.DuongDanAnh;
+                            
+                            var imagePath = ImageHelper.GetImagePath(anhDaiDien);
+                        }
+                        <img src="@imagePath"
+                             class="card-img-top"
+                             alt="@sp.TieuDe"
+                             style="height: 220px; object-fit: contain; background: #f8f9fa; padding: 15px;"
+                             onerror="this.src='/images/picture1.png'; this.onerror=null;" />
+
+                        <div class="card-body text-center d-flex flex-column">
+                            <h5 class="card-title fw-bold mb-2" style="min-height: 2.8em; line-height: 1.4;">
+                                @sp.TieuDe
+                            </h5>
+
+                            <p class="text-muted small mb-2" style="min-height: 3em; overflow: hidden;">
+                                @(sp.MoTa?.Length > 80 ? sp.MoTa.Substring(0, 77) + "..." : sp.MoTa ?? "Không có mô tả")
+                            </p>
+
+                            <div class="mt-auto">
+                                @if (sp.GiaGoc > sp.Gia && sp.GiaGoc > 0)
+                                {
+                                    <p class="text-muted text-decoration-line-through mb-0">
+                                        @sp.GiaGoc.ToString("N0")đ
+                                    </p>
+                                }
+                                <h5 class="text-danger fw-bold mb-3">
+                                    @sp.Gia.ToString("N0")đ
+                                </h5>
+
+                                <a asp-controller="SanPhamView" asp-action="ChiTiet" asp-route-id="@sp.Id"
+                                   class="btn btn-success btn-sm w-100">Xem chi tiết</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Debug Section - Chỉ hiển thị khi debug -->
+@{
+    var debugMode = false;  // Đổi thành true để xem debug info
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@if (debugMode && Model?.Any() == true)
+{
+    <hr />
+    <div class="container alert alert-warning">
+        <h5>Debug - Image Paths:</h5>
+        @foreach (var sp in Model)
+        {
+            <div style="margin: 10px 0; padding: 10px; background: #f0f0f0; border-radius: 5px;">
+                <strong>@sp.TieuDe</strong>
+                @if (sp.AnhSanPhams?.Any() == true)
+                {
+                    <ul style="margin: 5px 0;">
+                        @foreach (var anh in sp.AnhSanPhams)
+                        {
+                            <li>@anh.DuongDanAnh (Featured: @anh.LaAnhDaiDien)</li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p style="color: red;">No images</p>
+                }
+            </div>
+        }
+    </div>
+}

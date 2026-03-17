@@ -1,0 +1,255 @@
+@model bandothanhli.Models.SanPham
+
+@{
+    ViewData["Title"] = $"Chi ti?t - {Model.TieuDe}";
+    var anhDaiDien = Model.AnhSanPhams?.FirstOrDefault(a => a.LaAnhDaiDien)?.DuongDanAnh 
+                     ?? Model.AnhSanPhams?.FirstOrDefault()?.DuongDanAnh 
+                     ?? "/images/picture1.png";
+    var diemTB = Model.DanhGias?.Any() == true ? Model.DanhGias.Average(d => d.DiemDanhGia) : 0;
+}
+
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang ch?</a></li>
+            <li class="breadcrumb-item"><a href="#">@Model.DanhMuc?.TenDanhMuc</a></li>
+            <li class="breadcrumb-item active">@Model.TieuDe</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- C?t trái: ?nh -->
+        <div class="col-lg-5 mb-4">
+            <!-- ?nh chính -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="position-relative bg-light" style="height: 400px; overflow: hidden;">
+                    <img id="mainImage" src="@anhDaiDien" 
+                         class="card-img-top" 
+                         style="width: 100%; height: 100%; object-fit: contain; padding: 20px;"
+                         alt="@Model.TieuDe" />
+                    
+                    <!-- Navigation arrows -->
+                    <button class="btn btn-light position-absolute start-0 top-50 translate-middle-y" 
+                            onclick="previousImage()" style="z-index: 10;">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="btn btn-light position-absolute end-0 top-50 translate-middle-y" 
+                            onclick="nextImage()" style="z-index: 10;">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
+                <!-- ?nh nh? -->
+                <div class="d-flex gap-2 p-3 overflow-auto bg-light" style="max-height: 100px;">
+                    @if (Model.AnhSanPhams?.Any() == true)
+                    {
+                        @foreach (var anh in Model.AnhSanPhams.OrderBy(a => a.ThuTu))
+                        {
+                            <img src="@anh.DuongDanAnh" 
+                                 class="img-thumbnail" 
+                                 style="width: 80px; height: 80px; object-fit: contain; cursor: pointer;"
+                                 onclick="changeMainImage('@anh.DuongDanAnh')"
+                                 alt="Thumbnail" />
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- C?t ph?i: Thông tin -->
+        <div class="col-lg-7">
+            <!-- Tiêu ?? & Rating -->
+            <h2 class="fw-bold mb-2">@Model.TieuDe</h2>
+            
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="d-flex align-items-center">
+                    @for (int i = 0; i < 5; i++)
+                    {
+                        @if (i < Math.Floor(diemTB))
+                        {
+                            <i class="fas fa-star text-warning"></i>
+                        }
+                        else if (i < diemTB)
+                        {
+                            <i class="fas fa-star-half-alt text-warning"></i>
+                        }
+                        else
+                        {
+                            <i class="far fa-star text-warning"></i>
+                        }
+                    }
+                </div>
+                <span class="text-muted">(@Model.DanhGias?.Count ?? 0 ?ánh giá)</span>
+            </div>
+
+            <!-- Giá -->
+            <div class="card border-0 bg-light p-3 mb-3">
+                @if (Model.GiaGoc > Model.Gia && Model.GiaGoc > 0)
+                {
+                    <p class="text-muted text-decoration-line-through mb-0">
+                        Giá g?c: @Model.GiaGoc.ToString("N0")?
+                    </p>
+                }
+                <h3 class="text-danger fw-bold mb-0">
+                    @Model.Gia.ToString("N0")?
+                </h3>
+            </div>
+
+            <!-- Thông tin b? sung -->
+            <div class="mb-3">
+                <p><strong>Tình tr?ng:</strong> <span class="badge bg-success">@Model.TinhTrang?.TenTinhTrang</span></p>
+                <p><strong>S? l??ng:</strong> @Model.SoLuong</p>
+                <p><strong>??a ?i?m:</strong> @Model.DiaDiem</p>
+                <p><strong>Danh m?c:</strong> @Model.DanhMuc?.TenDanhMuc</p>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex gap-2 mb-4">
+                <button class="btn btn-success flex-grow-1 py-2">
+                    <i class="fas fa-shopping-cart me-2"></i> Thêm vào gi? hàng
+                </button>
+                <button class="btn btn-outline-primary flex-grow-1 py-2">
+                    <i class="fas fa-heart me-2"></i> Yêu thích
+                </button>
+            </div>
+
+            <!-- Thông tin ng??i bán -->
+            <div class="card border-0 bg-light p-3">
+                <h5 class="mb-3">Ng??i bán</h5>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-secondary rounded-circle p-3" style="width: 60px; height: 60px; flex-shrink: 0;">
+                        <i class="fas fa-user fa-2x text-white"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">@Model.NguoiBan?.HoTen</h6>
+                        <p class="text-muted small mb-2">
+                            <i class="fas fa-phone me-1"></i> @Model.NguoiBan?.SoDienThoai
+                        </p>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-envelope me-1"></i> Liên h?
+                            </button>
+                            <button class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-comments me-1"></i> Chat
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mô t? chi ti?t -->
+    <div class="row mt-5">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Mô t? chi ti?t</h4>
+                    <p>@Html.Raw(Model.MoTa?.Replace("\n", "<br/>"))</p>
+                </div>
+            </div>
+
+            <!-- ?ánh giá -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-4">?ánh giá (@Model.DanhGias?.Count ?? 0)</h4>
+
+                    @if (Model.DanhGias?.Any() == true)
+                    {
+                        @foreach (var danhGia in Model.DanhGias.OrderByDescending(d => d.NgayTao).Take(5))
+                        {
+                            <div class="border-bottom pb-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-1">@danhGia.NguoiDanhGia?.HoTen</h6>
+                                        <div class="d-flex gap-1">
+                                            @for (int i = 0; i < 5; i++)
+                                            {
+                                                @if (i < danhGia.DiemDanhGia)
+                                                {
+                                                    <i class="fas fa-star text-warning"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="far fa-star text-warning"></i>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">@danhGia.NgayTao.ToString("dd/MM/yyyy")</small>
+                                </div>
+                                <p class="text-muted">@danhGia.BinhLuan</p>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center py-4">Ch?a có ?ánh giá nào</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: S?n ph?m t??ng t? -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">S?n ph?m t??ng t?</h5>
+                    <p class="text-muted small">Các s?n ph?m khác trong danh m?c này</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .breadcrumb {
+        background-color: transparent;
+        padding: 0;
+    }
+
+    .card {
+        border-radius: 8px;
+    }
+
+    .img-thumbnail {
+        border: 2px solid transparent;
+        transition: all 0.3s;
+    }
+
+    .img-thumbnail:hover {
+        border-color: var(--bs-success);
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    let currentImageIndex = 0;
+    const images = [
+        @if (Model.AnhSanPhams?.Any() == true)
+        {
+            @foreach (var anh in Model.AnhSanPhams.OrderBy(a => a.ThuTu))
+            {
+                <text>'@anh.DuongDanAnh',</text>
+            }
+        }
+    ].filter(x => x);  // Lo?i b? ph?n t? tr?ng cu?i
+
+    function changeMainImage(src) {
+        document.getElementById('mainImage').src = src;
+        currentImageIndex = images.indexOf(src);
+    }
+
+    function nextImage() {
+        if (images.length === 0) return;
+        currentImageIndex = (currentImageIndex + 1) % images.length;
+        document.getElementById('mainImage').src = images[currentImageIndex];
+    }
+
+    function previousImage() {
+        if (images.length === 0) return;
+        currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+        document.getElementById('mainImage').src = images[currentImageIndex];
+    }
+</script>

@@ -110,6 +110,15 @@ namespace bandothanhli.Controllers
 
             var token = _jwtService.TaoToken(nguoiDung);
 
+            // Đặt JWT token vào cookie HTTP-only
+            Response.Cookies.Append("token", token, new Microsoft.AspNetCore.Http.CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddHours(24)
+            });
+
             return Ok(new
             {
                 message = "Đăng nhập thành công",
@@ -177,6 +186,15 @@ namespace bandothanhli.Controllers
             await _db.SaveChangesAsync();
 
             return Ok(new { message = "Đổi mật khẩu thành công!" });
+        }
+
+        // Đăng xuất
+        [HttpPost("dang-xuat")]
+        public IActionResult DangXuat()
+        {
+            // Xóa cookie
+            Response.Cookies.Delete("token");
+            return Ok(new { message = "Đăng xuất thành công" });
         }
     }
 }

@@ -13,15 +13,128 @@ namespace bandothanhli.Controllers
     public class SanPhamController : ControllerBase
     {
         private readonly AppDbContext _db;
+        private readonly IWebHostEnvironment _env;
 
-        public SanPhamController(AppDbContext db)
+        public SanPhamController(AppDbContext db, IWebHostEnvironment env)
         {
             _db = db;
+            _env = env;
         }
 
         private Guid GetCurrentUserId()
         {
             return Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        }
+
+        // POST /api/san-pham/upload-anh
+        [HttpPost("upload-anh")]
+        [Authorize]
+        public async Task<IActionResult> UploadAnh([FromForm] UploadAnhDTO dto)
+        {
+            try
+            {
+                if (dto.AnhFile == null || dto.AnhFile.Length == 0)
+                    return BadRequest(new { message = "Vui lòng chọn hình ảnh" });
+
+                // Kiểm tra loại file
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+                var fileExtension = Path.GetExtension(dto.AnhFile.FileName).ToLower();
+                
+                if (!allowedExtensions.Contains(fileExtension))
+                    return BadRequest(new { message = "Chỉ chấp nhận file ảnh (.jpg, .png, .gif, .webp)" });
+
+                // Kiểm tra kích thước (max 5MB)
+                if (dto.AnhFile.Length > 5 * 1024 * 1024)
+                    return BadRequest(new { message = "Kích thước ảnh không được vượt quá 5MB" });
+
+                var userId = GetCurrentUserId();
+                var sanPham = await _db.SanPhams.FindAsync(dto.SanPhamId);
+                
+                if (sanPham == null)
+                    return NotFound(new { message = "Không tìm thấy sản phẩm" });
+
+                if (sanPham.NguoiBanId != userId)
+                    return Forbid();
+
+                // Tạo thư mục nếu chưa tồn tại
+                var uploadsPath = Path.Combine(_env.WebRootPath, "images");
+                if (!Directory.Exists(uploadsPath))
+                    Directory.CreateDirectory(uploadsPath);
+
+                // Tạo tên file duy nhất
+                var fileName = $"{Guid.NewGuid()}{fileExtension}";
+                var filePath = Path.Combine(uploadsPath, fileName);
+
+                // Lưu file
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await dto.AnhFile.CopyToAsync(stream);
+                }
+
+                // Nếu là ảnh đại diện, bỏ chọn ảnh đại diện cũ
+                if (dto.LaAnhDaiDien)
+                {
+                    var anhCuDaiDien = await _db.AnhSanPhams
+                        .Where(a => a.SanPhamId == dto.SanPhamId && a.LaAnhDaiDien)
+                        .FirstOrDefaultAsync();
+                    
+                    if (anhCuDaiDien != null)
+                        anhCuDaiDien.LaAnhDaiDien = false;
+                }
+
+                // Lưu thông tin ảnh vào database
+                var anh = new AnhSanPham
+                {
+                    Id = Guid.NewGuid(),
+                    SanPhamId = dto.SanPhamId,
+                    DuongDanAnh = $"/images/{fileName}",
+                    LaAnhDaiDien = dto.LaAnhDaiDien,
+                    ThuTu = await _db.AnhSanPhams.Where(a => a.SanPhamId == dto.SanPhamId).CountAsync()
+                };
+
+                await _db.AnhSanPhams.AddAsync(anh);
+                await _db.SaveChangesAsync();
+
+                return Ok(new { message = "Upload ảnh thành công", id = anh.Id, duongDanAnh = anh.DuongDanAnh });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Lỗi upload ảnh: {ex.Message}" });
+            }
+        }
+
+        // DELETE /api/san-pham/xoa-anh/{id}
+        [HttpDelete("xoa-anh/{id}")]
+        [Authorize]
+        public async Task<IActionResult> XoaAnh(Guid id)
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+                var anh = await _db.AnhSanPhams
+                    .Include(a => a.SanPham)
+                    .FirstOrDefaultAsync(a => a.Id == id);
+
+                if (anh == null)
+                    return NotFound(new { message = "Không tìm thấy ảnh" });
+
+                if (anh.SanPham.NguoiBanId != userId)
+                    return Forbid();
+
+                // Xóa file khỏi disk
+                var filePath = Path.Combine(_env.WebRootPath, anh.DuongDanAnh.TrimStart('/'));
+                if (System.IO.File.Exists(filePath))
+                    System.IO.File.Delete(filePath);
+
+                _db.AnhSanPhams.Remove(anh);
+                await _db.SaveChangesAsync();
+
+                return Ok(new { message = "Xóa ảnh thành công" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Lỗi xóa ảnh: {ex.Message}" });
+            }
         }
 
         // GET /api/san-pham

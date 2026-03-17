@@ -2,6 +2,13 @@
 {
     public class SanPham
     {
+        public SanPham()
+        {
+            AnhSanPhams = new List<AnhSanPham>();
+            ChiTietDonHangs = new List<ChiTietDonHang>();
+            DanhGias = new List<DanhGia>();
+        }
+
         public Guid Id { get; set; }
         public Guid NguoiBanId { get; set; }
         public Guid DanhMucId { get; set; }
