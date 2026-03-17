@@ -1,6 +1,7 @@
 ﻿using bandothanhli.Data;
 using bandothanhli.DTOs;
 using bandothanhli.Models;
+using bandothanhli.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,12 @@ namespace bandothanhli.Controllers
     public class SanPhamController : ControllerBase
     {
         private readonly AppDbContext _db;
+        private readonly ICloudinaryService _cloudinary;
 
-        public SanPhamController(AppDbContext db)
+        public SanPhamController(AppDbContext db, ICloudinaryService cloudinary)
         {
             _db = db;
+            _cloudinary = cloudinary;
         }
 
         private Guid GetCurrentUserId()
@@ -41,6 +44,7 @@ namespace bandothanhli.Controllers
                 .Include(s => s.DanhMuc)
                 .Include(s => s.TinhTrang)
                 .Include(s => s.AnhSanPhams)
+                .Include(s => s.DanhGias)
                 .AsQueryable();
 
             if (danhMucId.HasValue)
@@ -74,6 +78,8 @@ namespace bandothanhli.Controllers
                     TinhTrang = s.TinhTrang.TenTinhTrang,
                     DanhMuc = s.DanhMuc.TenDanhMuc,
                     NguoiBan = s.NguoiBan.HoTen,
+                    DiemDanhGia = s.DanhGias.Any() ? s.DanhGias.Average(d => (double)d.DiemDanhGia) : 0,
+                    SoDanhGia = s.DanhGias.Count,
                     AnhDaiDien = s.AnhSanPhams
                         .Where(a => a.LaAnhDaiDien)
                         .Select(a => a.DuongDanAnh)
@@ -101,6 +107,8 @@ namespace bandothanhli.Controllers
             return Ok(new
             {
                 sanPham.Id,
+                sanPham.DanhMucId,
+                sanPham.TinhTrangId,
                 sanPham.TieuDe,
                 sanPham.MoTa,
                 sanPham.Gia,
@@ -111,11 +119,75 @@ namespace bandothanhli.Controllers
                 sanPham.NgayTao,
                 TinhTrang = sanPham.TinhTrang.TenTinhTrang,
                 DanhMuc = sanPham.DanhMuc.TenDanhMuc,
-                NguoiBan = new { sanPham.NguoiBan.Id, sanPham.NguoiBan.HoTen, sanPham.NguoiBan.SoDienThoai },
+                NguoiBan = new { sanPham.NguoiBan.Id, sanPham.NguoiBan.HoTen, sanPham.NguoiBan.Email, sanPham.NguoiBan.SoDienThoai },
                 Anh = sanPham.AnhSanPhams.OrderBy(a => a.ThuTu).Select(a => new { a.Id, a.DuongDanAnh, a.LaAnhDaiDien }),
                 DiemDanhGia = sanPham.DanhGias.Any() ? sanPham.DanhGias.Average(d => d.DiemDanhGia) : 0,
                 SoDanhGia = sanPham.DanhGias.Count
             });
+        }
+
+        // POST /api/san-pham/{id}/anh
+        [HttpPost("{id}/anh")]
+        [Authorize]
+        [RequestSizeLimit(30_000_000)]
+        public async Task<IActionResult> TaiAnh(Guid id, [FromForm] List<IFormFile> files, [FromForm] int? anhDaiDienIndex)
+        {
+            if (files == null || files.Count == 0) return BadRequest(new { message = "Vui lòng chọn ít nhất 1 ảnh" });
+            if (files.Count > 10) return BadRequest(new { message = "Tối đa 10 ảnh mỗi lần" });
+
+            var userId = GetCurrentUserId();
+            var sanPham = await _db.SanPhams
+                .Include(s => s.AnhSanPhams)
+                .FirstOrDefaultAsync(s => s.Id == id);
+
+            if (sanPham == null) return NotFound(new { message = "Không tìm thấy sản phẩm" });
+            if (sanPham.NguoiBanId != userId) return Forbid();
+
+            var startOrder = sanPham.AnhSanPhams.Any() ? sanPham.AnhSanPhams.Max(a => a.ThuTu) + 1 : 1;
+            var uploaded = new List<AnhSanPham>();
+
+            for (var i = 0; i < files.Count; i++)
+            {
+                var file = files[i];
+                if (file.Length <= 0) return BadRequest(new { message = "Có file rỗng" });
+                if (!file.ContentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+                    return BadRequest(new { message = "Chỉ hỗ trợ file ảnh" });
+
+                string url;
+                try
+                {
+                    url = await _cloudinary.UploadImageAsync(file, HttpContext.RequestAborted);
+                }
+                catch (Exception ex)
+                {
+                    return StatusCode(500, new { message = ex.Message });
+                }
+                var anh = new AnhSanPham
+                {
+                    Id = Guid.NewGuid(),
+                    SanPhamId = sanPham.Id,
+                    DuongDanAnh = url,
+                    LaAnhDaiDien = false,
+                    ThuTu = startOrder + i
+                };
+                uploaded.Add(anh);
+            }
+
+            var idx = anhDaiDienIndex ?? 0;
+            if (idx < 0 || idx >= uploaded.Count) idx = 0;
+            foreach (var a in sanPham.AnhSanPhams) a.LaAnhDaiDien = false;
+            uploaded[idx].LaAnhDaiDien = true;
+
+            await _db.AnhSanPhams.AddRangeAsync(uploaded);
+            await _db.SaveChangesAsync();
+
+            var result = await _db.AnhSanPhams
+                .Where(a => a.SanPhamId == sanPham.Id)
+                .OrderBy(a => a.ThuTu)
+                .Select(a => new { a.Id, a.DuongDanAnh, a.LaAnhDaiDien, a.ThuTu })
+                .ToListAsync();
+
+            return Ok(new { message = "Tải ảnh thành công", data = result });
         }
 
         // GET /api/san-pham/cua-toi

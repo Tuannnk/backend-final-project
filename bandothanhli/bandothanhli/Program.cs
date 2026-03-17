@@ -19,6 +19,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
+builder.Services.AddSingleton<ICloudinaryService, CloudinaryService>();
 
 // JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -53,4 +54,19 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapDefaultControllerRoute();
+
+if (app.Environment.IsDevelopment())
+{
+    try
+    {
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        await DbSeeder.SeedAsync(db);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[Seed] {ex.Message}");
+    }
+}
+
 app.Run();

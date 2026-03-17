@@ -31,6 +31,9 @@ namespace bandothanhli.Controllers
         {
             var userId = GetCurrentUserId();
 
+            if (!string.Equals(dto.PhuongThucThanhToan, "thanh_toan_khi_nhan_hang", StringComparison.OrdinalIgnoreCase))
+                return BadRequest(new { message = "Hiện chỉ hỗ trợ thanh toán khi nhận hàng" });
+
             // Kiểm tra địa chỉ
             var diaChi = await _db.DiaChis.FirstOrDefaultAsync(d => d.Id == dto.DiaChiId && d.NguoiDungId == userId);
             if (diaChi == null) return BadRequest(new { message = "Địa chỉ không hợp lệ" });
@@ -83,7 +86,7 @@ namespace bandothanhli.Controllers
                 PhuongThuc = dto.PhuongThucThanhToan,
                 SoTien = tongTien,
                 TrangThai = "cho_thanh_toan",
-                MaGiaoDich = null
+                MaGiaoDich = $"COD-{Guid.NewGuid():N}"
             };
 
             // Tạo theo dõi đơn hàng
@@ -186,8 +189,162 @@ namespace bandothanhli.Controllers
                     donHang.ThanhToan.SoTien,
                     donHang.ThanhToan.TrangThai
                 },
-                LichSuTrangThai = donHang.TheoDoidonHangs.OrderBy(t => t.NgayCapNhat)
+                LichSuTrangThai = donHang.TheoDoidonHangs
+                    .OrderBy(t => t.NgayCapNhat)
+                    .Select(t => new { t.Id, t.TrangThai, t.GhiChu, t.NgayCapNhat })
             });
+        }
+
+        // GET /api/don-hang/ban-cua-toi
+        [HttpGet("ban-cua-toi")]
+        public async Task<IActionResult> DonHangBanCuaToi([FromQuery] int trang = 1, [FromQuery] int soLuong = 10)
+        {
+            var sellerId = GetCurrentUserId();
+
+            var query = _db.DonHangs
+                .Include(d => d.NguoiMua)
+                .Include(d => d.DiaChi)
+                .Include(d => d.ChiTietDonHangs)
+                    .ThenInclude(c => c.SanPham)
+                        .ThenInclude(s => s.AnhSanPhams)
+                .Where(d => d.ChiTietDonHangs.Any(c => c.SanPham.NguoiBanId == sellerId));
+
+            var total = await query.CountAsync();
+            var data = await query
+                .OrderByDescending(d => d.NgayTao)
+                .Skip((trang - 1) * soLuong)
+                .Take(soLuong)
+                .Select(d => new
+                {
+                    d.Id,
+                    d.TrangThai,
+                    d.NgayTao,
+                    NguoiMua = d.NguoiMua.HoTen,
+                    SoSanPhamCuaBan = d.ChiTietDonHangs.Count(c => c.SanPham.NguoiBanId == sellerId),
+                    TongTienCuaBan = d.ChiTietDonHangs
+                        .Where(c => c.SanPham.NguoiBanId == sellerId)
+                        .Sum(c => c.GiaTaiThoiDiem * c.SoLuong),
+                    SanPhamDauTien = d.ChiTietDonHangs
+                        .Where(c => c.SanPham.NguoiBanId == sellerId)
+                        .Select(c => c.SanPham.TieuDe)
+                        .FirstOrDefault(),
+                    AnhDauTien = d.ChiTietDonHangs
+                        .Where(c => c.SanPham.NguoiBanId == sellerId)
+                        .Select(c => c.SanPham.AnhSanPhams.Where(a => a.LaAnhDaiDien).Select(a => a.DuongDanAnh).FirstOrDefault())
+                        .FirstOrDefault()
+                })
+                .ToListAsync();
+
+            return Ok(new { total, trang, soLuong, data });
+        }
+
+        // GET /api/don-hang/ban-cua-toi/{id}
+        [HttpGet("ban-cua-toi/{id}")]
+        public async Task<IActionResult> ChiTietDonHangBan(Guid id)
+        {
+            var sellerId = GetCurrentUserId();
+
+            var donHang = await _db.DonHangs
+                .Include(d => d.NguoiMua)
+                .Include(d => d.DiaChi)
+                .Include(d => d.ChiTietDonHangs)
+                    .ThenInclude(c => c.SanPham)
+                        .ThenInclude(s => s.AnhSanPhams)
+                .Include(d => d.ThanhToan)
+                .Include(d => d.TheoDoidonHangs)
+                .FirstOrDefaultAsync(d => d.Id == id);
+
+            if (donHang == null) return NotFound(new { message = "Không tìm thấy đơn hàng" });
+
+            var coSanPhamCuaBan = donHang.ChiTietDonHangs.Any(c => c.SanPham.NguoiBanId == sellerId);
+            if (!coSanPhamCuaBan) return Forbid();
+
+            var sanPhamsCuaBan = donHang.ChiTietDonHangs
+                .Where(c => c.SanPham.NguoiBanId == sellerId)
+                .Select(c => new
+                {
+                    c.SanPhamId,
+                    c.SanPham.TieuDe,
+                    c.GiaTaiThoiDiem,
+                    c.SoLuong,
+                    ThanhTien = c.GiaTaiThoiDiem * c.SoLuong,
+                    Anh = c.SanPham.AnhSanPhams.Where(a => a.LaAnhDaiDien).Select(a => a.DuongDanAnh).FirstOrDefault()
+                })
+                .ToList();
+
+            var tongTienCuaBan = sanPhamsCuaBan.Sum(x => x.ThanhTien);
+
+            return Ok(new
+            {
+                donHang.Id,
+                donHang.TrangThai,
+                donHang.NgayTao,
+                TongTienCuaBan = tongTienCuaBan,
+                donHang.GhiChu,
+                NguoiMua = new { donHang.NguoiMua.HoTen, donHang.NguoiMua.SoDienThoai },
+                DiaChi = new
+                {
+                    donHang.DiaChi.HoTen,
+                    donHang.DiaChi.SoDienThoai,
+                    donHang.DiaChi.DuongPho,
+                    donHang.DiaChi.QuanHuyen,
+                    donHang.DiaChi.TinhThanh
+                },
+                SanPhams = sanPhamsCuaBan,
+                ThanhToan = new
+                {
+                    donHang.ThanhToan.PhuongThuc,
+                    donHang.ThanhToan.SoTien,
+                    donHang.ThanhToan.TrangThai
+                },
+                LichSuTrangThai = donHang.TheoDoidonHangs
+                    .OrderBy(t => t.NgayCapNhat)
+                    .Select(t => new { t.Id, t.TrangThai, t.GhiChu, t.NgayCapNhat })
+            });
+        }
+
+        // PUT /api/don-hang/ban-cua-toi/{id}/chap-nhan
+        [HttpPut("ban-cua-toi/{id}/chap-nhan")]
+        public async Task<IActionResult> ChapNhanDonHangBan(Guid id)
+        {
+            var sellerId = GetCurrentUserId();
+
+            var donHang = await _db.DonHangs
+                .Include(d => d.ChiTietDonHangs)
+                    .ThenInclude(c => c.SanPham)
+                .FirstOrDefaultAsync(d => d.Id == id);
+
+            if (donHang == null) return NotFound(new { message = "Không tìm thấy đơn hàng" });
+
+            var coSanPhamCuaBan = donHang.ChiTietDonHangs.Any(c => c.SanPham.NguoiBanId == sellerId);
+            if (!coSanPhamCuaBan) return Forbid();
+
+            if (donHang.TrangThai != "cho_xac_nhan")
+                return BadRequest(new { message = "Chỉ có thể chấp nhận đơn hàng đang chờ xác nhận" });
+
+            // Tạm thời chỉ hỗ trợ đơn hàng 1 người bán
+            var nhieuNguoiBan = donHang.ChiTietDonHangs
+                .Select(c => c.SanPham.NguoiBanId)
+                .Distinct()
+                .Count() > 1;
+
+            if (nhieuNguoiBan)
+                return BadRequest(new { message = "Đơn hàng có nhiều người bán, hiện chưa hỗ trợ chấp nhận theo từng người bán" });
+
+            donHang.TrangThai = "dang_giao";
+            donHang.NgayCapNhat = DateTime.Now;
+
+            await _db.TheoDoidonHangs.AddAsync(new TheoDoidonHang
+            {
+                Id = Guid.NewGuid(),
+                DonHangId = id,
+                TrangThai = "dang_giao",
+                GhiChu = "Người bán đã chấp nhận đơn",
+                NgayCapNhat = DateTime.Now
+            });
+
+            await _db.SaveChangesAsync();
+            return Ok(new { message = "Đã chấp nhận đơn hàng" });
         }
 
         // PUT /api/don-hang/{id}/huy

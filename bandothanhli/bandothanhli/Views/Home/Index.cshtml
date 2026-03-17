@@ -1,8 +1,72 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Trang chủ";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="eshop-section">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <h2 class="eshop-section-title m-0">Sản Phẩm Mới Đăng</h2>
+        <button class="btn btn-sm btn-outline-secondary d-none d-md-inline-flex" type="button" id="heroScrollBtn">Xem tất cả</button>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+        <div class="input-group input-group-sm eshop-price" style="max-width: 320px;">
+            <span class="input-group-text">Giá</span>
+            <input class="form-control" inputmode="numeric" placeholder="Từ" id="priceMinInput" />
+            <input class="form-control" inputmode="numeric" placeholder="Đến" id="priceMaxInput" />
+            <button class="btn btn-outline-secondary" type="button" id="applyPriceBtn">Lọc</button>
+        </div>
+        <button class="btn btn-sm btn-outline-secondary" type="button" id="clearFiltersBtn">Xóa lọc</button>
+    </div>
+
+    <div class="eshop-alert alert alert-warning d-none" role="alert" id="homeError"></div>
+
+    <div class="row g-3" id="homeNewProductGrid" aria-live="polite"></div>
+
+    <div class="d-flex justify-content-center mt-3">
+        <nav aria-label="Pagination">
+            <ul class="pagination pagination-sm mb-0" id="homePagination"></ul>
+        </nav>
+    </div>
 </div>
+
+<div class="eshop-section">
+    <h2 class="eshop-section-title mb-2">Top Được Đánh Giá</h2>
+    <div class="eshop-toprated-row" id="homeTopRated" aria-live="polite"></div>
+</div>
+
+<div class="eshop-section">
+    <div class="row g-3">
+        <div class="col-12 col-lg-6">
+            <div class="eshop-banner">
+                <div class="eshop-banner-inner">
+                    <h3 class="eshop-banner-title">Ưu Đãi Đặc Biệt</h3>
+                    <div class="text-muted small mb-2">Sưu tập deal hot theo chủ đề</div>
+                    <div class="eshop-banner-grid">
+                        <div class="eshop-banner-img" aria-hidden="true"></div>
+                        <div class="eshop-banner-img" aria-hidden="true"></div>
+                        <div class="eshop-banner-img" aria-hidden="true"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="eshop-banner">
+                <div class="eshop-banner-inner">
+                    <h3 class="eshop-banner-title">Bán Gần Bạn</h3>
+                    <div class="text-muted small mb-2">Gợi ý theo địa điểm sản phẩm</div>
+                    <div class="eshop-banner-grid">
+                        <div class="eshop-banner-img" aria-hidden="true"></div>
+                        <div class="eshop-banner-img" aria-hidden="true"></div>
+                        <div class="eshop-banner-img" aria-hidden="true"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.__ESHOP_PAGE__ = "home";
+    </script>
+}

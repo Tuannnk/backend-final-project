@@ -1,0 +1,123 @@
+<div class="post-root" id="postRoot">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <h1 class="post-title m-0">Đăng tin thanh lý mới</h1>
+        <div class="text-muted small">Đăng sản phẩm để bán nhanh</div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12 col-lg-7">
+            <div class="post-card">
+                <div class="post-card-title">Thông Tin Cơ Bản</div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Tiêu đề</label>
+                    <input class="form-control" id="postTitleInput" placeholder="VD: Bình hoa gốm cũ" maxlength="120" />
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-bold">Danh mục</label>
+                        <select class="form-select" id="postCategorySelect"></select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-bold">Tình trạng</label>
+                        <select class="form-select" id="postConditionSelect"></select>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <label class="form-label fw-bold">Mô tả chi tiết</label>
+                    <textarea class="form-control" id="postDescInput" rows="6" placeholder="Mô tả sản phẩm, kích thước, tình trạng, lý do thanh lý..."></textarea>
+                </div>
+
+                <div class="post-image-section mt-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="post-card-title mb-0">Hình Ảnh</div>
+                        <div class="text-muted small">Tối đa 10 ảnh</div>
+                    </div>
+
+                    <div class="post-image-grid" id="postImageGrid"></div>
+
+                    <div class="d-flex flex-wrap gap-2 mt-2 align-items-center">
+                        <input type="file" accept="image/*" multiple id="postImageInput" style="display:none" />
+                        <button class="btn btn-outline-secondary" type="button" id="postPickImagesBtn">Thêm ảnh</button>
+                        <div class="text-muted small">Bấm vào ảnh để chọn làm ảnh đại diện</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-5">
+            <div class="post-card">
+                <div class="post-card-title">Giá &amp; Giao Dịch</div>
+
+                <div class="row g-2">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-bold">Giá bán</label>
+                        <input class="form-control" id="postPriceInput" inputmode="numeric" placeholder="25000" />
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-bold">Giá gốc (optional)</label>
+                        <input class="form-control" id="postOldPriceInput" inputmode="numeric" placeholder="50000" />
+                    </div>
+                </div>
+
+                <div class="row g-2 mt-1">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-bold">Số lượng</label>
+                        <input class="form-control" id="postQtyInput" inputmode="numeric" value="1" />
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <label class="form-label fw-bold">Địa điểm</label>
+                        <input class="form-control" id="postLocationInput" placeholder="VD: Quận 1, TP.HCM" />
+                    </div>
+                </div>
+
+                <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" value="" id="postNegotiableCheck" />
+                    <label class="form-check-label" for="postNegotiableCheck">Chấp nhận trả giá</label>
+                </div>
+
+                <div class="mt-3">
+                    <label class="form-label fw-bold">Ghi chú (seller)</label>
+                    <textarea class="form-control" id="postNoteInput" rows="3" placeholder="Ghi chú nội bộ (không bắt buộc)"></textarea>
+                </div>
+            </div>
+
+            <div class="post-card mt-3">
+                <div class="post-card-title">Thông Tin Người Bán &amp; Địa Chỉ</div>
+                <div class="post-seller">
+                    <div class="post-seller-avatar">👤</div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold" id="postSellerName">—</div>
+                        <div class="text-muted small" id="postSellerEmail">—</div>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="fw-bold">Địa chỉ nhận hàng (mặc định)</div>
+                        <button class="btn btn-sm btn-outline-secondary" type="button" id="postChangeAddressBtn">Thay đổi</button>
+                    </div>
+                    <div class="text-muted small mt-1" id="postDefaultAddress">—</div>
+                    <div class="mt-2 d-none" id="postAddressPickerWrap">
+                        <select class="form-select form-select-sm" id="postAddressSelect"></select>
+                    </div>
+                </div>
+
+                <div class="post-actions mt-3">
+                    <div class="alert alert-warning d-none mb-2" id="postError"></div>
+                    <button class="btn btn-eshop w-100" type="button" id="postSubmitBtn">Đăng tin</button>
+                    <button class="btn btn-outline-secondary w-100 mt-2" type="button" id="postCancelBtn">Hủy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.__ESHOP_PAGE__ = "post";
+    </script>
+}
+

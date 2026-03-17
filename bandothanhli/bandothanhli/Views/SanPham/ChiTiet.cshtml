@@ -1,0 +1,87 @@
+@{
+    var productId = ViewData["ProductId"] is Guid g ? g : Guid.Empty;
+}
+
+<div id="productDetailRoot" data-id="@productId">
+    <div class="row g-3">
+        <div class="col-12 col-lg-6">
+            <div class="pd-card">
+                <div class="pd-gallery">
+                    <button class="pd-nav" type="button" id="pdPrevBtn" aria-label="Previous">‹</button>
+                    <div class="pd-main">
+                        <img id="pdMainImg" alt="Ảnh sản phẩm" />
+                    </div>
+                    <button class="pd-nav" type="button" id="pdNextBtn" aria-label="Next">›</button>
+                </div>
+                <div class="pd-thumbs" id="pdThumbs" aria-label="Thư viện ảnh"></div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-3">
+            <div class="pd-card">
+                <h1 class="pd-title" id="pdTitle">Đang tải...</h1>
+                <div class="pd-price">
+                    <div class="pd-price-main" id="pdPrice"></div>
+                    <div class="pd-price-old" id="pdOldPrice"></div>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between mt-2">
+                    <div class="eshop-stars" id="pdStars" aria-label="Rating"></div>
+                    <div class="text-muted small" id="pdRatingText"></div>
+                </div>
+
+                <div class="pd-desc text-muted mt-2" id="pdDesc"></div>
+
+                <div class="pd-meta mt-3" id="pdMeta"></div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-3">
+            <div class="pd-card">
+                <div class="pd-seller">
+                    <div class="pd-seller-avatar">👤</div>
+                    <div class="flex-grow-1">
+                        <div class="pd-seller-name" id="pdSellerName">Người bán</div>
+                        <div class="text-muted small" id="pdSellerEmail"></div>
+                        <div class="text-muted small" id="pdSellerPhone"></div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-3">
+                    <button class="btn btn-eshop" type="button" id="pdAddToCartBtn">Thêm vào giỏ hàng</button>
+                    <button class="btn btn-outline-secondary" type="button" id="pdBuyNowBtn">Mua ngay</button>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary flex-grow-1" type="button" id="pdChatBtn">💬 Nhắn tin</button>
+                        <button class="btn btn-outline-secondary" type="button" id="pdLikeBtn" title="Yêu thích">♡</button>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <div class="fw-bold text-dark mb-1">Địa chỉ</div>
+                    <div class="text-muted small" id="pdAddress">—</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pd-section mt-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <h2 class="eshop-section-title m-0">Đánh giá</h2>
+            <div class="text-muted small" id="pdReviewSummary"></div>
+        </div>
+        <div class="pd-reviews" id="pdReviews"></div>
+    </div>
+
+    <div class="pd-section mt-3">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+            <h2 class="eshop-section-title m-0">Sản phẩm tương tự</h2>
+        </div>
+        <div class="pd-similar" id="pdSimilar"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.__ESHOP_PAGE__ = "product";
+    </script>
+}
