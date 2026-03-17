@@ -77,16 +77,20 @@
         <p class="text-muted small mt-1">Thanh Lý Đồ Cũ</p>
     </div>
 
-    @*
-        Chỉ hiện lỗi chung (key = "") — tức là lỗi từ controller
-        Không hiện lỗi validation của từng field ở đây
-    *@
-    @if (ViewData.ModelState.ContainsKey("") &&
-         ViewData.ModelState[""]!.Errors.Count > 0)
+    @{
+        var loginErrors = ViewData.ModelState.Values
+            .SelectMany(v => v.Errors)
+            .Select(e => e.ErrorMessage)
+            .Where(e => !string.IsNullOrWhiteSpace(e))
+            .Distinct()
+            .ToList();
+    }
+
+    @if (loginErrors.Any())
     {
         <div class="alert-error">
             <i class="bi bi-exclamation-circle-fill"></i>
-            <span>@ViewData.ModelState[""]!.Errors[0].ErrorMessage</span>
+            <span>@loginErrors.First()</span>
         </div>
     }
 

@@ -109,6 +109,13 @@ namespace bandothanhli.Areas.Admin.Controllers
             var u = await _db.NguoiDungs.FindAsync(id);
             if (u == null) return NotFound();
 
+            bool laAdmin = u.VaiTro == "Admin";
+            if (laAdmin)
+            {
+                TempData["Error"] = "Không thể xóa tài khoản quản trị.";
+                return RedirectToAction("Index");
+            }
+
             bool conDon = await _db.DonHangs.AnyAsync(d =>
                 d.NguoiMuaId == id &&
                 (d.TrangThai == "ChoPhanHoi" ||
@@ -118,6 +125,19 @@ namespace bandothanhli.Areas.Admin.Controllers
             if (conDon)
             {
                 TempData["Error"] = "Không thể xóa! Người dùng còn đơn hàng đang xử lý.";
+                return RedirectToAction("Index");
+            }
+
+            bool coDuLieuLienQuan =
+                await _db.SanPhams.AnyAsync(s => s.NguoiBanId == id) ||
+                await _db.DonHangs.AnyAsync(d => d.NguoiMuaId == id) ||
+                await _db.DiaChis.AnyAsync(dc => dc.NguoiDungId == id) ||
+                await _db.DanhGias.AnyAsync(dg => dg.NguoiDanhGiaId == id) ||
+                await _db.TinNhans.AnyAsync(t => t.NguoiGuiId == id || t.NguoiNhanId == id);
+
+            if (coDuLieuLienQuan)
+            {
+                TempData["Error"] = "Không thể xóa! Người dùng vẫn còn dữ liệu liên quan.";
                 return RedirectToAction("Index");
             }
 

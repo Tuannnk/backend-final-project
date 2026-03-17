@@ -15,6 +15,36 @@ namespace bandothanhli.Areas.Admin.Controllers
             var today = DateTime.Today;
             var thangNay = new DateTime(today.Year, today.Month, 1);
             var thangTruoc = thangNay.AddMonths(-1);
+            var startDate = today.AddDays(-29);
+
+            var doanhThu30NgayRaw = await _db.ThanhToans
+                .Where(t => t.TrangThai == "DaThanhToan"
+                         && t.NgayThanhToan.HasValue
+                         && t.NgayThanhToan.Value.Date >= startDate)
+                .GroupBy(t => t.NgayThanhToan!.Value.Date)
+                .Select(g => new
+                {
+                    Ngay = g.Key,
+                    DoanhThu = g.Sum(x => x.SoTien),
+                    SoDonHang = g.Count()
+                })
+                .ToListAsync();
+
+            var doanhThuTheoNgay = doanhThu30NgayRaw.ToDictionary(x => x.Ngay);
+            var bieuDoDoanhThu = Enumerable.Range(0, 30)
+                .Select(offset =>
+                {
+                    var ngay = startDate.AddDays(offset);
+                    doanhThuTheoNgay.TryGetValue(ngay, out var value);
+
+                    return new DoanhThuTheoNgayVM
+                    {
+                        Ngay = ngay.ToString("dd/MM"),
+                        DoanhThu = value?.DoanhThu ?? 0,
+                        SoDonHang = value?.SoDonHang ?? 0
+                    };
+                })
+                .ToList();
 
             var vm = new DashboardVM
             {
@@ -112,18 +142,7 @@ namespace bandothanhli.Areas.Admin.Controllers
                     }).ToListAsync(),
 
                 // ── Biểu đồ doanh thu 30 ngày ──
-                BieuDoDoanhThu = await _db.ThanhToans
-                    .Where(t => t.TrangThai == "DaThanhToan"
-                             && t.NgayThanhToan >= today.AddDays(-29))
-                    .GroupBy(t => t.NgayThanhToan!.Value.Date)
-                    .Select(g => new DoanhThuTheoNgayVM
-                    {
-                        Ngay = g.Key.ToString("dd/MM"),
-                        DoanhThu = g.Sum(x => x.SoTien),
-                        SoDonHang = g.Count()
-                    })
-                    .OrderBy(x => x.Ngay)
-                    .ToListAsync(),
+                BieuDoDoanhThu = bieuDoDoanhThu,
 
                 // ── Sản phẩm theo loại ──
                 SanPhamTheoLoai = await _db.DanhMucs

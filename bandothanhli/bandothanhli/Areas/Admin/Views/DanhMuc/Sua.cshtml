@@ -45,7 +45,7 @@
                                 @foreach (var item in (List<bandothanhli.Models.DanhMuc>)ViewBag.DanhSachCha)
                                 {
                                     <option value="@item.Id"
-                                        @(Model.DanhMucChaId == item.Id ? "selected" : "")>
+                                            selected="@(Model.DanhMucChaId == item.Id)">
                                         @item.TenDanhMuc
                                     </option>
                                 }

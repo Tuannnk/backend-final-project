@@ -23,7 +23,7 @@
                     @foreach (var dm in (List<DanhMuc>)ViewBag.DanhSachDanhMuc)
                     {
                         <option value="@dm.Id"
-                            @(ViewBag.DanhMucId?.ToString() == dm.Id.ToString() ? "selected" : "")>
+                                selected="@(ViewBag.DanhMucId?.ToString() == dm.Id.ToString())">
                             @dm.TenDanhMuc
                         </option>
                     }
@@ -34,7 +34,7 @@
                     <option value="">Tất cả</option>
                     @foreach (var tt in new[] { "DangBan", "DaBan", "AnHang" })
                     {
-                        <option value="@tt" @(ViewBag.TrangThai == tt ? "selected" : "")>@tt</option>
+                        <option value="@tt" selected="@(ViewBag.TrangThai == tt)">@tt</option>
                     }
                 </select>
             </div>

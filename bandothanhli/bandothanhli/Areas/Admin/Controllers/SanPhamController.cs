@@ -100,6 +100,23 @@ namespace bandothanhli.Areas.Admin.Controllers
                 return RedirectToAction("Index");
             }
 
+            bool coLichSuDonHang = await _db.ChiTietDonHangs.AnyAsync(ct => ct.SanPhamId == id);
+            if (coLichSuDonHang)
+            {
+                TempData["Error"] = "Không thể xóa! Sản phẩm đã phát sinh trong đơn hàng.";
+                return RedirectToAction("Index");
+            }
+
+            bool coDuLieuLienQuan =
+                await _db.DanhGias.AnyAsync(dg => dg.SanPhamId == id) ||
+                await _db.TinNhans.AnyAsync(t => t.SanPhamId == id);
+
+            if (coDuLieuLienQuan)
+            {
+                TempData["Error"] = "Không thể xóa! Sản phẩm vẫn còn đánh giá hoặc tin nhắn liên quan.";
+                return RedirectToAction("Index");
+            }
+
             foreach (var anh in s.AnhSanPhams)
             {
                 var path = Path.Combine(_env.WebRootPath,

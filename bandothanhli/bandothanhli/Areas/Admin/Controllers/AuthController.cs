@@ -30,12 +30,31 @@ namespace bandothanhli.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            var nd = await _db.NguoiDungs.FirstOrDefaultAsync(u =>
-                u.Email == model.Email && u.VaiTro == "Admin");
+            model.Email = model.Email.Trim();
 
-            if (nd == null || !Verify(model.MatKhau, nd.MatKhau))
+            var nd = await _db.NguoiDungs.FirstOrDefaultAsync(u => u.Email == model.Email);
+
+            if (nd == null)
             {
-                ModelState.AddModelError("", "Email hoặc mật khẩu không đúng");
+                ModelState.AddModelError("", "Tài khoản không tồn tại.");
+                return View(model);
+            }
+
+            if (nd.VaiTro != "Admin")
+            {
+                ModelState.AddModelError("", "Tài khoản này không có quyền truy cập trang quản trị.");
+                return View(model);
+            }
+
+            if (!nd.DaXacThuc)
+            {
+                ModelState.AddModelError("", "Tài khoản chưa được kích hoạt.");
+                return View(model);
+            }
+
+            if (!Verify(model.MatKhau, nd.MatKhau))
+            {
+                ModelState.AddModelError("", "Mật khẩu không đúng.");
                 return View(model);
             }
 
