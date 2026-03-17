@@ -1,0 +1,109 @@
+﻿@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - EcoShop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: radial-gradient(circle at 20% 0%, rgba(46, 125, 50, 0.16), transparent 35%), radial-gradient(circle at 80% 20%, rgba(46, 125, 50, 0.14), transparent 40%), #eaf6ee; }
+        .auth-card {
+            max-width: 440px;
+            margin: 80px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            padding: 40px;
+        }
+        .btn-primary { background: #2e7d32; border: none; }
+        .btn-primary:hover { background: #1b5e20; }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="text-center mb-4">
+            <h4 class="fw-bold">🌿 EcoShop</h4>
+            <p class="text-muted">Đăng nhập để tiếp tục</p>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" id="email" class="form-control" placeholder="example@gmail.com">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Mật khẩu</label>
+            <div class="input-group">
+                <input type="password" id="matKhau" class="form-control" placeholder="Nhập mật khẩu">
+                <button class="btn btn-outline-secondary" onclick="toggleMatKhau()" type="button">👁</button>
+            </div>
+        </div>
+        <div class="text-end mb-3">
+            <a href="/auth/quen-mat-khau" class="text-muted small">Quên mật khẩu?</a>
+        </div>
+
+        <div id="errorDangNhap" class="text-danger mb-2" style="display:none;"></div>
+        <button class="btn btn-primary w-100" onclick="dangNhap()">Đăng nhập</button>
+
+        <p class="text-center mt-3 mb-0">
+            Chưa có tài khoản? <a href="/auth/dang-ky">Đăng ký ngay</a>
+        </p>
+    </div>
+
+    <script>
+        function toggleMatKhau() {
+            const input = document.getElementById('matKhau');
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        async function dangNhap() {
+            const email = document.getElementById('email').value;
+            const matKhau = document.getElementById('matKhau').value;
+            const errorEl = document.getElementById('errorDangNhap');
+
+            if (!email || !matKhau) {
+                errorEl.textContent = 'Vui lòng điền đầy đủ thông tin';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/dang-nhap', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, matKhau })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('nguoiDung', JSON.stringify(data.nguoiDung));
+
+                    // Chuyển hướng theo vai trò
+                    if (data.nguoiDung.vaiTro === 'admin') {
+                        window.location.href = '/admin/dashboard';
+                    } else {
+                        window.location.href = '/';
+                    }
+                } else {
+                    errorEl.textContent = data.message;
+                    errorEl.style.display = 'block';
+                }
+            } catch (e) {
+                errorEl.textContent = 'Lỗi kết nối server';
+                errorEl.style.display = 'block';
+            }
+        }
+
+        // Cho phép nhấn Enter để đăng nhập
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') dangNhap();
+        });
+    </script>
+</body>
+</html>

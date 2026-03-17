@@ -1,0 +1,162 @@
+﻿@{
+    ViewData["Title"] = "Quên mật khẩu";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quên mật khẩu - EcoShop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: radial-gradient(circle at 20% 0%, rgba(46, 125, 50, 0.16), transparent 35%), radial-gradient(circle at 80% 20%, rgba(46, 125, 50, 0.14), transparent 40%), #eaf6ee; }
+        .auth-card {
+            max-width: 440px;
+            margin: 80px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            padding: 40px;
+        }
+        .btn-primary { background: #2e7d32; border: none; }
+        .btn-primary:hover { background: #1b5e20; }
+        .otp-input {
+            letter-spacing: 12px;
+            font-size: 24px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <div class="text-center mb-4">
+            <h4 class="fw-bold">🔑 Quên mật khẩu</h4>
+        </div>
+
+        <!-- Bước 1: Nhập email -->
+        <div id="buoc1">
+            <p class="text-muted">Nhập email để nhận mã OTP đặt lại mật khẩu</p>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" id="email" class="form-control" placeholder="example@gmail.com">
+            </div>
+            <div id="error1" class="text-danger mb-2" style="display:none;"></div>
+            <button class="btn btn-primary w-100" onclick="guiOtp()">Gửi mã OTP</button>
+        </div>
+
+        <!-- Bước 2: Nhập OTP + mật khẩu mới -->
+        <div id="buoc2" style="display:none;">
+            <p class="text-muted text-center">Nhập mã OTP đã gửi đến <b id="emailHienThi"></b></p>
+            <div class="mb-3">
+                <label class="form-label">Mã OTP</label>
+                <input type="text" id="maOtp" class="form-control otp-input" maxlength="6" placeholder="000000">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mật khẩu mới</label>
+                <input type="password" id="matKhauMoi" class="form-control" placeholder="Ít nhất 6 ký tự">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Xác nhận mật khẩu</label>
+                <input type="password" id="xacNhanMatKhau" class="form-control" placeholder="Nhập lại mật khẩu">
+            </div>
+            <div id="error2" class="text-danger mb-2" style="display:none;"></div>
+            <button class="btn btn-primary w-100" onclick="doiMatKhau()">Đặt lại mật khẩu</button>
+        </div>
+
+        <!-- Thành công -->
+        <div id="thanhCong" style="display:none; text-align:center;">
+            <div style="font-size: 64px;">✅</div>
+            <h5 class="fw-bold mt-3">Đổi mật khẩu thành công!</h5>
+            <a href="/auth/dang-nhap" class="btn btn-primary w-100 mt-3">Đăng nhập ngay</a>
+        </div>
+
+        <p class="text-center mt-3 mb-0">
+            <a href="/auth/dang-nhap">← Quay lại đăng nhập</a>
+        </p>
+    </div>
+
+    <script>
+        let emailNguoiDung = '';
+
+        async function guiOtp() {
+            const email = document.getElementById('email').value;
+            const errorEl = document.getElementById('error1');
+
+            if (!email) {
+                errorEl.textContent = 'Vui lòng nhập email';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/yeu-cau-doi-mat-khau', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    emailNguoiDung = email;
+                    document.getElementById('emailHienThi').textContent = email;
+                    document.getElementById('buoc1').style.display = 'none';
+                    document.getElementById('buoc2').style.display = 'block';
+                } else {
+                    errorEl.textContent = data.message;
+                    errorEl.style.display = 'block';
+                }
+            } catch (e) {
+                errorEl.textContent = 'Lỗi kết nối server';
+                errorEl.style.display = 'block';
+            }
+        }
+
+        async function doiMatKhau() {
+            const maOtp = document.getElementById('maOtp').value;
+            const matKhauMoi = document.getElementById('matKhauMoi').value;
+            const xacNhan = document.getElementById('xacNhanMatKhau').value;
+            const errorEl = document.getElementById('error2');
+
+            if (maOtp.length !== 6) {
+                errorEl.textContent = 'Vui lòng nhập đủ 6 số OTP';
+                errorEl.style.display = 'block';
+                return;
+            }
+            if (matKhauMoi.length < 6) {
+                errorEl.textContent = 'Mật khẩu phải ít nhất 6 ký tự';
+                errorEl.style.display = 'block';
+                return;
+            }
+            if (matKhauMoi !== xacNhan) {
+                errorEl.textContent = 'Mật khẩu xác nhận không khớp';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/doi-mat-khau', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: emailNguoiDung, maOtp, matKhauMoi })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    document.getElementById('buoc2').style.display = 'none';
+                    document.getElementById('thanhCong').style.display = 'block';
+                } else {
+                    errorEl.textContent = data.message;
+                    errorEl.style.display = 'block';
+                }
+            } catch (e) {
+                errorEl.textContent = 'Lỗi kết nối server';
+                errorEl.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

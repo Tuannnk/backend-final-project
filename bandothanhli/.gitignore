@@ -20,6 +20,9 @@ obj/
 *.snupkg
 packages/
 
+# Local dotnet CLI home used by Codex/sandbox
+.dotnet_home/
+
 # Backup & temp files
 *.bak
 *.tmp
@@ -31,6 +34,13 @@ publish/
 # ASP.NET scaffolding
 ScaffoldingReadMe.txt
 
+# App settings (local/dev)
+appsettings.json
+appsettings.Development.json
+**/appsettings.json
+**/appsettings.Development.json
+
 # Others
 *.dbmdl
 *.jfm
+

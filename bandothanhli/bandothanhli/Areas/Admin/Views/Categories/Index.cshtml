@@ -1,0 +1,78 @@
+@{
+    ViewData["Title"] = "Quản lý danh mục";
+}
+
+<div class="adm-panel">
+    <div class="d-flex flex-column flex-md-row gap-2 justify-content-between align-items-md-center mb-2">
+        <div class="d-flex align-items-center gap-2">
+            <div class="adm-panel-title">Danh mục</div>
+            <button class="btn btn-sm btn-primary" type="button" id="admCatAddBtn">Thêm danh mục</button>
+            <button class="btn btn-sm btn-outline-secondary" type="button" id="admCatRefreshBtn">Tải lại</button>
+        </div>
+        <div class="text-muted small">Xóa chỉ khả dụng khi danh mục không có sản phẩm.</div>
+    </div>
+
+    <div class="alert alert-warning d-none" id="admCatError"></div>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Tên</th>
+                    <th>Slug</th>
+                    <th class="text-center">Thứ tự</th>
+                    <th>Icon</th>
+                    <th class="text-end">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="admCatBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="admCatModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="admCatModalTitle">Danh mục</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning d-none mb-2" id="admCatModalError"></div>
+                <div class="mb-2">
+                    <label class="form-label">Tên danh mục</label>
+                    <input class="form-control" id="admCatTen" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Slug</label>
+                    <input class="form-control" id="admCatSlug" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Icon URL</label>
+                    <input class="form-control" id="admCatIcon" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Thứ tự</label>
+                    <input class="form-control" inputmode="numeric" id="admCatThuTu" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Danh mục cha</label>
+                    <select class="form-select" id="admCatParent">
+                        <option value="">(Không)</option>
+                    </select>
+                    <div class="form-text">API hiện chỉ hỗ trợ set danh mục cha khi tạo mới.</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" id="admCatSaveBtn">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.__ADMIN_PAGE__ = "categories";
+    </script>
+}

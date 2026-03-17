@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Bán Đồ Thanh Lý</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/bandothanhli.styles.css" asp-append-version="true" />
+</head>
+<body class="eshop-body">
+    <div class="eshop-shell">
+        <header class="border-bottom">
+            <nav class="eshop-header navbar navbar-expand-lg bg-white">
+                <div class="container-fluid py-2 px-3">
+                    <a class="navbar-brand eshop-brand" asp-area="Client" asp-controller="Home" asp-action="Index">
+                        <span class="eshop-brand-mark">🌿</span>
+                        <span class="eshop-brand-text">EcoShop</span>
+                    </a>
+
+                    <div class="d-none d-lg-flex align-items-center gap-2 ms-2">
+                        <span class="text-muted small">Ngôn ngữ</span>
+                        <div class="btn-group" role="group" aria-label="Language">
+                            <button class="btn btn-sm btn-outline-secondary" type="button">VI</button>
+                            <button class="btn btn-sm btn-outline-secondary" type="button">EN</button>
+                        </div>
+                    </div>
+
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#eshopTopNav" aria-controls="eshopTopNav"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="eshopTopNav">
+                        <form class="d-flex flex-grow-1 mx-lg-3 my-2 my-lg-0" role="search" id="globalSearchForm">
+                            <div class="input-group eshop-search">
+                                <input class="form-control" type="search" placeholder="Tìm đồ cũ..." aria-label="Search" id="globalSearchInput" />
+                                <button class="btn btn-eshop" type="submit">🔍</button>
+                            </div>
+                        </form>
+
+                        <div class="d-flex align-items-center gap-2">
+                            <a class="btn btn-outline-secondary" href="/auth/dang-nhap" id="headerLoginBtn">👤 Tài khoản</a>
+                            <div class="dropdown" id="headerUserDropdown" style="display:none;">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="me-1">👤</span><span id="headerUserName">Tài khoản</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="/tai-khoan">Trang cá nhân</a></li>
+                                    <li><a class="dropdown-item" href="/don-hang/mua">Đơn mua</a></li>
+                                    <li><a class="dropdown-item" href="/don-hang/ban">Đơn bán</a></li>
+                                    <li><a class="dropdown-item" href="/admin/dashboard" id="headerAdminLink" style="display:none;">Admin Dashboard</a></li>
+                                    <li><a class="dropdown-item" href="#" id="headerLogoutBtn">Đăng xuất</a></li>
+                                </ul>
+                            </div>
+                            <a class="btn btn-eshop" href="/dang-tin" title="Đăng tin">＋ Đăng tin</a>
+                            <a class="btn btn-outline-secondary" href="/gio-hang" title="Giỏ hàng">🛒 Giỏ hàng</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="eshop-categorybar bg-white">
+                <div class="px-3">
+                    <div class="eshop-categories" id="headerCategoryNav" aria-label="Danh mục"></div>
+                </div>
+            </div>
+        </header>
+
+        <div class="eshop-shell-inner">
+            <main role="main">
+                @RenderBody()
+            </main>
+        </div>
+
+        <footer class="border-top text-muted">
+            <div class="eshop-shell-footer">
+                <div class="row g-3">
+                    <div class="col-12 col-md-4">
+                        <div class="fw-bold text-dark mb-1">Hỗ trợ</div>
+                        <div class="d-flex flex-column gap-1 small">
+                            <a class="link-secondary text-decoration-none" href="#">Thanh lý đồ cũ</a>
+                            <a class="link-secondary text-decoration-none" href="#">Thanh lý món mới</a>
+                            <a class="link-secondary text-decoration-none" href="#">Chính sách</a>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="fw-bold text-dark mb-1">Điều khoản</div>
+                        <div class="d-flex flex-column gap-1 small">
+                            <a class="link-secondary text-decoration-none" asp-area="Client" asp-controller="Home" asp-action="Privacy">Thanh lý giảm</a>
+                            <a class="link-secondary text-decoration-none" href="#">Thanh lý trả góp/tháng</a>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="fw-bold text-dark mb-1">Liên hệ</div>
+                        <div class="d-flex flex-column gap-1 small">
+                            <a class="link-secondary text-decoration-none" href="#">Giá sỉ muốn lên</a>
+                            <a class="link-secondary text-decoration-none" href="#">Liên hệ</a>
+                        </div>
+                        <div class="d-flex gap-2 mt-2">
+                            <a class="btn btn-sm btn-outline-secondary" href="#" title="Facebook">f</a>
+                            <a class="btn btn-sm btn-outline-secondary" href="#" title="X">x</a>
+                            <a class="btn btn-sm btn-outline-secondary" href="#" title="Instagram">ig</a>
+                            <a class="btn btn-sm btn-outline-secondary" href="#" title="TikTok">tt</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex flex-column flex-md-row gap-2 justify-content-between mt-3 small">
+                    <div>&copy; 2026 - EcoShop</div>
+                    <div>Made with ASP.NET Core</div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <div class="eshop-message-widget" id="eshopMessageWidget" aria-live="polite"></div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

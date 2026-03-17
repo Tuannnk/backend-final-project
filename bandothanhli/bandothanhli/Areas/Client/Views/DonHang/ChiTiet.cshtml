@@ -1,0 +1,59 @@
+@{
+    var orderId = ViewData["OrderId"] is Guid g ? g : Guid.Empty;
+}
+
+<div id="orderDetailRoot" class="ord-root" data-id="@orderId">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <h1 class="ord-title m-0">Chi tiết đơn hàng</h1>
+        <div class="d-flex gap-2">
+            <a class="btn btn-sm btn-outline-secondary" href="/don-hang/mua">Đơn mua</a>
+            <a class="btn btn-sm btn-outline-secondary" href="/don-hang/ban">Đơn bán</a>
+        </div>
+    </div>
+
+    <div class="ord-card">
+        <div class="alert alert-warning d-none mb-2" id="orderDetailError"></div>
+
+        <div class="row g-3">
+            <div class="col-12 col-lg-8">
+                <div class="ord-subtitle mb-2">Sản phẩm</div>
+                <div class="ord-items" id="orderItems"></div>
+            </div>
+            <div class="col-12 col-lg-4">
+                <div class="ord-side">
+                    <div class="ord-side-row">
+                        <div class="text-muted">Trạng thái</div>
+                        <div class="fw-bold" id="orderStatus">—</div>
+                    </div>
+                    <div class="ord-side-row">
+                        <div class="text-muted">Tổng tiền</div>
+                        <div class="fw-bold" id="orderTotal">—</div>
+                    </div>
+                    <div class="ord-side-row">
+                        <div class="text-muted">Thanh toán</div>
+                        <div class="fw-bold" id="orderPay">—</div>
+                    </div>
+                    <div class="ord-side-row">
+                        <div class="text-muted">Ghi chú</div>
+                        <div class="small" id="orderNote">—</div>
+                    </div>
+
+                    <div class="ord-subtitle mt-3 mb-2">Người mua</div>
+                    <div class="small" id="orderBuyer">—</div>
+
+                    <div class="ord-subtitle mt-3 mb-2">Địa chỉ nhận hàng</div>
+                    <div class="small" id="orderAddress">—</div>
+
+                    <button class="btn btn-outline-secondary w-100 mt-3 d-none" type="button" id="orderCancelBtn">Hủy đơn</button>
+                    <button class="btn btn-eshop w-100 mt-2 d-none" type="button" id="orderAcceptBtn">Chấp nhận đơn</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.__ESHOP_PAGE__ = "order_detail";
+    </script>
+}
