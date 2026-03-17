@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace bandothanhli.Controllers
+namespace bandothanhli.Areas.Client.Controllers
 {
+    [Area("Client")]
     [Route("gio-hang")]
     public class GioHangViewController : Controller
     {
@@ -9,7 +10,7 @@ namespace bandothanhli.Controllers
         public IActionResult Index()
         {
             ViewData["Title"] = "Trang giỏ hàng";
-            return View("~/Views/GioHang/Index.cshtml");
+            return View("~/Areas/Client/Views/GioHang/Index.cshtml");
         }
     }
 }

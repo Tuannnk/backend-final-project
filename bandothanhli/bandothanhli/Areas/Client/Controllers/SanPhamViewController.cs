@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace bandothanhli.Controllers
+namespace bandothanhli.Areas.Client.Controllers
 {
+    [Area("Client")]
     [Route("san-pham")]
     public class SanPhamViewController : Controller
     {
@@ -10,7 +11,7 @@ namespace bandothanhli.Controllers
         {
             ViewData["ProductId"] = id;
             ViewData["Title"] = "Chi tiết sản phẩm";
-            return View("~/Views/SanPham/ChiTiet.cshtml");
+            return View("~/Areas/Client/Views/SanPham/ChiTiet.cshtml");
         }
     }
 }

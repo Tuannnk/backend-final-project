@@ -140,8 +140,17 @@
     const userDropdown = document.getElementById("headerUserDropdown");
     const userName = document.getElementById("headerUserName");
     const logoutBtn = document.getElementById("headerLogoutBtn");
+    const adminLink = document.getElementById("headerAdminLink");
 
     const user = readUser();
+    const token = readToken();
+    if (token) {
+      fetch("/api/auth/refresh-cookie", { method: "POST", headers: { Authorization: `Bearer ${token}` } }).catch(() => {});
+    }
+    if (adminLink) {
+      const role = user?.vaiTro ?? user?.vaiTro;
+      adminLink.style.display = role === "admin" ? "" : "none";
+    }
     if (user && userDropdown && userName && loginBtn) {
       loginBtn.style.display = "none";
       userDropdown.style.display = "";
@@ -149,8 +158,11 @@
     }
 
     if (logoutBtn) {
-      logoutBtn.addEventListener("click", (e) => {
+      logoutBtn.addEventListener("click", async (e) => {
         e.preventDefault();
+        try {
+          await fetch("/api/auth/dang-xuat", { method: "POST" });
+        } catch {}
         localStorage.removeItem("token");
         localStorage.removeItem("nguoiDung");
         window.location.href = "/";
