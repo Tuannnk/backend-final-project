@@ -42,18 +42,22 @@
             <div class="mb-3">
                 <label class="form-label">Họ tên</label>
                 <input type="text" id="hoTen" class="form-control" placeholder="Nguyễn Văn A">
+                <div class="invalid-feedback" id="hoTenError"></div>
             </div>
             <div class="mb-3">
                 <label class="form-label">Email</label>
                 <input type="email" id="email" class="form-control" placeholder="example@gmail.com">
+                <div class="invalid-feedback" id="emailError"></div>
             </div>
             <div class="mb-3">
                 <label class="form-label">Số điện thoại</label>
                 <input type="text" id="soDienThoai" class="form-control" placeholder="0901234567">
+                <div class="invalid-feedback" id="soDienThoaiError"></div>
             </div>
             <div class="mb-3">
                 <label class="form-label">Mật khẩu</label>
                 <input type="password" id="matKhau" class="form-control" placeholder="Ít nhất 6 ký tự">
+                <div class="invalid-feedback" id="matKhauError"></div>
             </div>
             <div id="errorDangKy" class="text-danger mb-2" style="display:none;"></div>
             <button class="btn btn-primary w-100" onclick="dangKy()">Đăng ký</button>
@@ -92,18 +96,89 @@
     <script>
             let emailDangKy = '';
 
+            function setFieldError(inputId, errorId, message) {
+                const input = document.getElementById(inputId);
+                const err = document.getElementById(errorId);
+                if (!input || !err) return;
+
+                if (message) {
+                    input.classList.add('is-invalid');
+                    err.textContent = message;
+                } else {
+                    input.classList.remove('is-invalid');
+                    err.textContent = '';
+                }
+            }
+
+            function clearErrors() {
+                setFieldError('hoTen', 'hoTenError', '');
+                setFieldError('email', 'emailError', '');
+                setFieldError('soDienThoai', 'soDienThoaiError', '');
+                setFieldError('matKhau', 'matKhauError', '');
+                const errorEl = document.getElementById('errorDangKy');
+                if (errorEl) {
+                    errorEl.textContent = '';
+                    errorEl.style.display = 'none';
+                }
+            }
+
+            function isValidEmail(email) {
+                return /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(String(email || '').trim());
+            }
+
+            function isValidPhone(phone) {
+                return /^0\d{9,10}$/.test(String(phone || '').trim());
+            }
+
+            function isValidPassword(pw) {
+                const s = String(pw || '');
+                if (s.length < 6) return false;
+                return /[A-Za-z]/.test(s) && /\d/.test(s);
+            }
+
             async function dangKy() {
-                const hoTen = document.getElementById('hoTen').value;
-                const email = document.getElementById('email').value;
-                const soDienThoai = document.getElementById('soDienThoai').value;
+                clearErrors();
+
+                const hoTen = document.getElementById('hoTen').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const soDienThoai = document.getElementById('soDienThoai').value.trim();
                 const matKhau = document.getElementById('matKhau').value;
                 const errorEl = document.getElementById('errorDangKy');
 
-                if (!hoTen || !email || !soDienThoai || !matKhau) {
-                    errorEl.textContent = 'Vui lòng điền đầy đủ thông tin';
-                    errorEl.style.display = 'block';
-                    return;
+                let ok = true;
+                if (!hoTen) {
+                    setFieldError('hoTen', 'hoTenError', 'Họ tên là bắt buộc');
+                    ok = false;
+                } else if (hoTen.length < 2) {
+                    setFieldError('hoTen', 'hoTenError', 'Họ tên tối thiểu 2 ký tự');
+                    ok = false;
                 }
+
+                if (!email) {
+                    setFieldError('email', 'emailError', 'Email là bắt buộc');
+                    ok = false;
+                } else if (!isValidEmail(email)) {
+                    setFieldError('email', 'emailError', 'Email không hợp lệ');
+                    ok = false;
+                }
+
+                if (!soDienThoai) {
+                    setFieldError('soDienThoai', 'soDienThoaiError', 'Số điện thoại là bắt buộc');
+                    ok = false;
+                } else if (!isValidPhone(soDienThoai)) {
+                    setFieldError('soDienThoai', 'soDienThoaiError', 'Số điện thoại không hợp lệ (vd: 0901234567)');
+                    ok = false;
+                }
+
+                if (!matKhau) {
+                    setFieldError('matKhau', 'matKhauError', 'Mật khẩu là bắt buộc');
+                    ok = false;
+                } else if (!isValidPassword(matKhau)) {
+                    setFieldError('matKhau', 'matKhauError', 'Mật khẩu tối thiểu 6 ký tự và phải có ít nhất 1 chữ + 1 số');
+                    ok = false;
+                }
+
+                if (!ok) return;
 
                 try {
                     const res = await fetch('/api/auth/dang-ky', {
@@ -112,7 +187,10 @@
                         body: JSON.stringify({ hoTen, email, soDienThoai, matKhau })
                     });
 
-                    const data = await res.json();
+                    let data = null;
+                    try {
+                        data = await res.json();
+                    } catch {}
 
                     if (res.ok) {
                         emailDangKy = email;
@@ -120,7 +198,19 @@
                         document.getElementById('formDangKy').style.display = 'none';
                         document.getElementById('formOtp').style.display = 'block';
                     } else {
-                        errorEl.textContent = data.message;
+                        const errors = data && data.errors ? data.errors : null;
+                        if (errors) {
+                            const hoTenMsg = (errors.HoTen && errors.HoTen[0]) || '';
+                            const emailMsg = (errors.Email && errors.Email[0]) || '';
+                            const phoneMsg = (errors.SoDienThoai && errors.SoDienThoai[0]) || '';
+                            const passMsg = (errors.MatKhau && errors.MatKhau[0]) || '';
+                            if (hoTenMsg) setFieldError('hoTen', 'hoTenError', hoTenMsg);
+                            if (emailMsg) setFieldError('email', 'emailError', emailMsg);
+                            if (phoneMsg) setFieldError('soDienThoai', 'soDienThoaiError', phoneMsg);
+                            if (passMsg) setFieldError('matKhau', 'matKhauError', passMsg);
+                        }
+
+                        errorEl.textContent = (data && data.message) ? data.message : 'Đăng ký thất bại';
                         errorEl.style.display = 'block';
                     }
                 } catch (e) {
@@ -169,6 +259,11 @@
                 });
                 alert('Đã gửi lại mã OTP!');
             }
+
+            document.getElementById('hoTen')?.addEventListener('input', () => setFieldError('hoTen', 'hoTenError', ''));
+            document.getElementById('email')?.addEventListener('input', () => setFieldError('email', 'emailError', ''));
+            document.getElementById('soDienThoai')?.addEventListener('input', () => setFieldError('soDienThoai', 'soDienThoaiError', ''));
+            document.getElementById('matKhau')?.addEventListener('input', () => setFieldError('matKhau', 'matKhauError', ''));
     </script>
 </body>
 </html>

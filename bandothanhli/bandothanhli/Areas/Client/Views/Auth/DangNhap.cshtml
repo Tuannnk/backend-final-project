@@ -34,6 +34,7 @@
         <div class="mb-3">
             <label class="form-label">Email</label>
             <input type="email" id="email" class="form-control" placeholder="example@gmail.com">
+            <div class="invalid-feedback" id="emailError"></div>
         </div>
         <div class="mb-3">
             <label class="form-label">Mật khẩu</label>
@@ -41,6 +42,7 @@
                 <input type="password" id="matKhau" class="form-control" placeholder="Nhập mật khẩu">
                 <button class="btn btn-outline-secondary" onclick="toggleMatKhau()" type="button">👁</button>
             </div>
+            <div class="invalid-feedback d-block" id="matKhauError" style="display:none;"></div>
         </div>
         <div class="text-end mb-3">
             <a href="/auth/quen-mat-khau" class="text-muted small">Quên mật khẩu?</a>
@@ -55,21 +57,63 @@
     </div>
 
     <script>
+        function setFieldError(inputId, errorId, message) {
+            const input = document.getElementById(inputId);
+            const err = document.getElementById(errorId);
+            if (!input || !err) return;
+
+            if (message) {
+                input.classList.add('is-invalid');
+                err.textContent = message;
+                err.style.display = 'block';
+            } else {
+                input.classList.remove('is-invalid');
+                err.textContent = '';
+                err.style.display = 'none';
+            }
+        }
+
+        function clearErrors() {
+            setFieldError('email', 'emailError', '');
+            setFieldError('matKhau', 'matKhauError', '');
+            const errorEl = document.getElementById('errorDangNhap');
+            if (errorEl) {
+                errorEl.textContent = '';
+                errorEl.style.display = 'none';
+            }
+        }
+
+        function isValidEmail(email) {
+            return /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(String(email || '').trim());
+        }
+
         function toggleMatKhau() {
             const input = document.getElementById('matKhau');
             input.type = input.type === 'password' ? 'text' : 'password';
         }
 
         async function dangNhap() {
-            const email = document.getElementById('email').value;
+            clearErrors();
+
+            const email = document.getElementById('email').value.trim();
             const matKhau = document.getElementById('matKhau').value;
             const errorEl = document.getElementById('errorDangNhap');
 
-            if (!email || !matKhau) {
-                errorEl.textContent = 'Vui lòng điền đầy đủ thông tin';
-                errorEl.style.display = 'block';
-                return;
+            let ok = true;
+            if (!email) {
+                setFieldError('email', 'emailError', 'Email là bắt buộc');
+                ok = false;
+            } else if (!isValidEmail(email)) {
+                setFieldError('email', 'emailError', 'Email không hợp lệ');
+                ok = false;
             }
+
+            if (!matKhau) {
+                setFieldError('matKhau', 'matKhauError', 'Mật khẩu là bắt buộc');
+                ok = false;
+            }
+
+            if (!ok) return;
 
             try {
                 const res = await fetch('/api/auth/dang-nhap', {
@@ -78,7 +122,10 @@
                     body: JSON.stringify({ email, matKhau })
                 });
 
-                const data = await res.json();
+                let data = null;
+                try {
+                    data = await res.json();
+                } catch {}
 
                 if (res.ok) {
                     localStorage.setItem('token', data.token);
@@ -91,8 +138,18 @@
                         window.location.href = '/';
                     }
                 } else {
-                    errorEl.textContent = data.message;
-                    errorEl.style.display = 'block';
+                    const errors = data && data.errors ? data.errors : null;
+                    if (errors) {
+                        const emailMsg = (errors.Email && errors.Email[0]) || '';
+                        const passMsg = (errors.MatKhau && errors.MatKhau[0]) || '';
+                        if (emailMsg) setFieldError('email', 'emailError', emailMsg);
+                        if (passMsg) setFieldError('matKhau', 'matKhauError', passMsg);
+                    }
+
+                    if (errorEl) {
+                        errorEl.textContent = (data && data.message) ? data.message : 'Đăng nhập thất bại';
+                        errorEl.style.display = 'block';
+                    }
                 }
             } catch (e) {
                 errorEl.textContent = 'Lỗi kết nối server';
@@ -104,6 +161,9 @@
         document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') dangNhap();
         });
+
+        document.getElementById('email')?.addEventListener('input', () => setFieldError('email', 'emailError', ''));
+        document.getElementById('matKhau')?.addEventListener('input', () => setFieldError('matKhau', 'matKhauError', ''));
     </script>
 </body>
 </html>
