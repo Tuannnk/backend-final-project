@@ -31,12 +31,9 @@ namespace bandothanhli.Controllers
         {
             var userId = GetCurrentUserId();
 
-<<<<<<< HEAD
-=======
             if (!string.Equals(dto.PhuongThucThanhToan, "thanh_toan_khi_nhan_hang", StringComparison.OrdinalIgnoreCase))
                 return BadRequest(new { message = "Hiện chỉ hỗ trợ thanh toán khi nhận hàng" });
 
->>>>>>> origin/Tuannnk
             // Kiểm tra địa chỉ
             var diaChi = await _db.DiaChis.FirstOrDefaultAsync(d => d.Id == dto.DiaChiId && d.NguoiDungId == userId);
             if (diaChi == null) return BadRequest(new { message = "Địa chỉ không hợp lệ" });
@@ -89,11 +86,8 @@ namespace bandothanhli.Controllers
                 PhuongThuc = dto.PhuongThucThanhToan,
                 SoTien = tongTien,
                 TrangThai = "cho_thanh_toan",
-<<<<<<< HEAD
-                MaGiaoDich = null
-=======
+
                 MaGiaoDich = $"COD-{Guid.NewGuid():N}"
->>>>>>> origin/Tuannnk
             };
 
             // Tạo theo dõi đơn hàng
@@ -196,12 +190,6 @@ namespace bandothanhli.Controllers
                     donHang.ThanhToan.SoTien,
                     donHang.ThanhToan.TrangThai
                 },
-<<<<<<< HEAD
-                LichSuTrangThai = donHang.TheoDoidonHangs.OrderBy(t => t.NgayCapNhat)
-            });
-        }
-
-=======
                 LichSuTrangThai = donHang.TheoDoidonHangs
                     .OrderBy(t => t.NgayCapNhat)
                     .Select(t => new { t.Id, t.TrangThai, t.GhiChu, t.NgayCapNhat })
@@ -360,7 +348,6 @@ namespace bandothanhli.Controllers
             return Ok(new { message = "Đã chấp nhận đơn hàng" });
         }
 
->>>>>>> origin/Tuannnk
         // PUT /api/don-hang/{id}/huy
         [HttpPut("{id}/huy")]
         public async Task<IActionResult> HuyDonHang(Guid id)
@@ -477,8 +464,4 @@ namespace bandothanhli.Controllers
             return Ok(new { total, trang, soLuong, data });
         }
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> origin/Tuannnk

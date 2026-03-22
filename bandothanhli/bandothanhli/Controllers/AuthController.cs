@@ -226,13 +226,13 @@ namespace bandothanhli.Controllers
             return Ok(new { message = "Đổi mật khẩu thành công!" });
         }
 
-        // Đăng xuất
-        [HttpPost("dang-xuat")]
-        public IActionResult DangXuat()
-        {
-            // Xóa cookie
-            Response.Cookies.Delete("token");
-            return Ok(new { message = "Đăng xuất thành công" });
-        }
+        //// Đăng xuất
+        //[HttpPost("dang-xuat")]
+        //public IActionResult DangXuat()
+        //{
+        //    // Xóa cookie
+        //    Response.Cookies.Delete("token");
+        //    return Ok(new { message = "Đăng xuất thành công" });
+        //}
     }
 }

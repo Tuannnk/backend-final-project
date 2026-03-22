@@ -4,7 +4,7 @@
     ViewData["Title"] = $"Chi ti?t - {Model.TieuDe}";
     var anhDaiDien = Model.AnhSanPhams?.FirstOrDefault(a => a.LaAnhDaiDien)?.DuongDanAnh 
                      ?? Model.AnhSanPhams?.FirstOrDefault()?.DuongDanAnh 
-                     ?? "/images/picture1.png";
+                     ?? "/images/gtx10504gb.png";
     var diemTB = Model.DanhGias?.Any() == true ? Model.DanhGias.Average(d => d.DiemDanhGia) : 0;
 }
 
