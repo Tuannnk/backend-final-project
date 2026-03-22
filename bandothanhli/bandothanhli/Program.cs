@@ -39,11 +39,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
-<<<<<<< HEAD
-builder.Services.AddScoped<IDataSeederService, DataSeederService>();
-=======
 builder.Services.AddSingleton<ICloudinaryService, CloudinaryService>();
->>>>>>> origin/Tuannnk
 
 // JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -139,12 +135,6 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-<<<<<<< HEAD
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-app.Run();
-=======
 
 // MVC routes (Areas)
 app.MapControllerRoute(
@@ -176,4 +166,3 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
->>>>>>> origin/Tuannnk

@@ -125,10 +125,6 @@ namespace bandothanhli.Controllers
             await _db.SaveChangesAsync();
             return Ok(new { message = "Xóa đánh giá thành công" });
         }
-<<<<<<< HEAD
-    }
-}
-=======
 
         // GET /api/danh-gia/top-san-pham
         [HttpGet("top-san-pham")]
@@ -161,4 +157,3 @@ namespace bandothanhli.Controllers
         }
     }
 }
->>>>>>> origin/Tuannnk
