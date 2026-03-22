@@ -39,6 +39,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IOtpService, OtpService>();
+builder.Services.AddScoped<IDataSeederService, DataSeederService>();
 builder.Services.AddSingleton<ICloudinaryService, CloudinaryService>();
 
 // JWT Authentication
