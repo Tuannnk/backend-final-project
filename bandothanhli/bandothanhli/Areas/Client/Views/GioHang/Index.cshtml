@@ -1,0 +1,107 @@
+<div id="cartRoot" class="cart-root">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <h1 class="cart-title m-0">Trang Giỏ hàng</h1>
+        <div class="text-muted small">Kiểm tra sản phẩm trước khi thanh toán</div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12 col-lg-8">
+            <div class="cart-card">
+                <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="cartSelectAll" />
+                        <label class="form-check-label" for="cartSelectAll">Chọn tất cả</label>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary" type="button" id="cartDeleteSelectedBtn">Xóa sản phẩm đã chọn</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table align-middle cart-table mb-0">
+                        <thead>
+                            <tr class="text-muted small">
+                                <th style="width:38px;"></th>
+                                <th style="width:92px;">Ảnh</th>
+                                <th>Tên sản phẩm</th>
+                                <th style="width:120px;" class="text-end">Đơn giá</th>
+                                <th style="width:140px;" class="text-center">Số lượng</th>
+                                <th style="width:120px;" class="text-end">Thành tiền</th>
+                                <th style="width:60px;" class="text-center">Xóa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cartTbody"></tbody>
+                    </table>
+                </div>
+
+                <div class="cart-empty d-none" id="cartEmpty">
+                    <div class="text-muted">Giỏ hàng đang trống.</div>
+                    <a class="btn btn-eshop mt-2" href="/">Tiếp tục mua sắm</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="cart-card">
+                <div class="cart-card-title">Mã Giảm Giá</div>
+                <div class="input-group input-group-sm">
+                    <input class="form-control" placeholder="Mã giảm giá" id="cartCouponInput" />
+                    <button class="btn btn-outline-secondary" type="button" id="cartApplyCouponBtn">Áp dụng</button>
+                </div>
+                <div class="text-muted small mt-1" id="cartCouponHint">Chưa hỗ trợ mã giảm giá (UI demo)</div>
+            </div>
+
+            <div class="cart-card mt-3">
+                <div class="cart-card-title">Thông Tin Đơn Hàng</div>
+                <div class="cart-summary">
+                    <div class="d-flex justify-content-between">
+                        <div class="text-muted">Tạm tính</div>
+                        <div id="cartSubtotal">0đ</div>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <div class="text-muted">Phí vận chuyển</div>
+                        <div id="cartShipping">0đ</div>
+                    </div>
+                    <div class="d-flex justify-content-between cart-total">
+                        <div class="fw-bold">Tổng tiền</div>
+                        <div class="fw-bold" id="cartTotal">0đ</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cart-card mt-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="cart-card-title mb-0">Địa Chỉ Nhận Hàng</div>
+                    <button class="btn btn-sm btn-outline-secondary" type="button" id="cartChangeAddressBtn">Thay đổi</button>
+                </div>
+                <div class="text-muted small mt-2" id="cartAddressText">Vui lòng đăng nhập để chọn địa chỉ.</div>
+                <div class="mt-2 d-none" id="cartAddressPickerWrap">
+                    <select class="form-select form-select-sm" id="cartAddressSelect"></select>
+                </div>
+            </div>
+
+            <div class="cart-card mt-3">
+                <div class="cart-card-title">Phương Thức Thanh Toán</div>
+                <div class="d-grid gap-2">
+                    <label class="form-check">
+                        <input class="form-check-input" type="radio" name="cartPay" value="thanh_toan_khi_nhan_hang" checked />
+                        <span class="form-check-label">Thanh toán khi nhận hàng</span>
+                    </label>
+                </div>
+                <div class="text-muted small mt-2">Chuyển khoản sẽ bổ sung sau.</div>
+            </div>
+
+            <div class="cart-card mt-3">
+                <div class="cart-card-title">Ghi chú</div>
+                <textarea class="form-control" id="cartNote" rows="3" placeholder="Ghi chú cho đơn hàng (optional)"></textarea>
+                <div class="alert alert-warning d-none mt-2 mb-0" id="cartError"></div>
+                <button class="btn btn-eshop w-100 mt-3" type="button" id="cartCheckoutBtn">Tiến Hành Thanh Toán</button>
+                <a class="btn btn-outline-secondary w-100 mt-2" href="/">Tiếp tục mua sắm</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.__ESHOP_PAGE__ = "cart";
+    </script>
+}

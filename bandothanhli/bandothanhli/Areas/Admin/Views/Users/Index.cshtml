@@ -1,0 +1,50 @@
+@{
+    ViewData["Title"] = "Quản lý người dùng";
+}
+
+<div class="adm-panel">
+    <div class="d-flex flex-column flex-md-row gap-2 justify-content-between align-items-md-center mb-2">
+        <div class="d-flex align-items-center gap-2">
+            <div class="adm-panel-title">Danh sách người dùng</div>
+            <button class="btn btn-sm btn-outline-secondary" type="button" id="admUsersRefreshBtn">Tải lại</button>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <select class="form-select form-select-sm" id="admUsersPageSize" style="max-width: 120px;">
+                <option value="10">10 / trang</option>
+                <option value="20">20 / trang</option>
+                <option value="50">50 / trang</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="alert alert-warning d-none" id="admUsersError"></div>
+
+    <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Họ tên</th>
+                    <th>Email</th>
+                    <th>SĐT</th>
+                    <th>Vai trò</th>
+                    <th class="text-center">Xác thực</th>
+                    <th class="text-end">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="admUsersBody"></tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-2">
+        <div class="text-muted small" id="admUsersMeta"></div>
+        <nav aria-label="Pagination">
+            <ul class="pagination pagination-sm mb-0" id="admUsersPagination"></ul>
+        </nav>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.__ADMIN_PAGE__ = "users";
+    </script>
+}

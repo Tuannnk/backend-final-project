@@ -109,6 +109,14 @@ namespace bandothanhli.Controllers
                 return Unauthorized(new { message = "Tài khoản chưa được xác minh. Vui lòng kiểm tra email." });
 
             var token = _jwtService.TaoToken(nguoiDung);
+            Response.Cookies.Append("access_token", token, new Microsoft.AspNetCore.Http.CookieOptions
+            {
+                HttpOnly = true,
+                Secure = Request.IsHttps,
+                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax,
+                Expires = DateTimeOffset.Now.AddDays(7),
+                Path = "/"
+            });
 
             // Đặt JWT token vào cookie HTTP-only
             Response.Cookies.Append("token", token, new Microsoft.AspNetCore.Http.CookieOptions
@@ -131,6 +139,36 @@ namespace bandothanhli.Controllers
                     nguoiDung.VaiTro
                 }
             });
+        }
+
+        // Đăng xuất (xóa cookie token)
+        [HttpPost("dang-xuat")]
+        public IActionResult DangXuat()
+        {
+            Response.Cookies.Delete("access_token", new Microsoft.AspNetCore.Http.CookieOptions { Path = "/" });
+            return Ok(new { message = "Đăng xuất thành công" });
+        }
+
+        // Đồng bộ token từ Authorization header vào cookie để dùng cho các trang MVC (vd: /admin/*)
+        [HttpPost("refresh-cookie")]
+        [Microsoft.AspNetCore.Authorization.Authorize]
+        public IActionResult RefreshCookie()
+        {
+            var auth = Request.Headers.Authorization.ToString();
+            if (string.IsNullOrWhiteSpace(auth) || !auth.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                return BadRequest(new { message = "Thiếu token" });
+
+            var token = auth.Substring("Bearer ".Length).Trim();
+            Response.Cookies.Append("access_token", token, new Microsoft.AspNetCore.Http.CookieOptions
+            {
+                HttpOnly = true,
+                Secure = Request.IsHttps,
+                SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax,
+                Expires = DateTimeOffset.Now.AddDays(7),
+                Path = "/"
+            });
+
+            return Ok(new { message = "OK" });
         }
 
         // BƯỚC 1: Yêu cầu đổi mật khẩu - gửi OTP

@@ -1,0 +1,22 @@
+<div id="ordersBuyerRoot" class="ord-root">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <h1 class="ord-title m-0">Đơn mua</h1>
+        <a class="btn btn-sm btn-outline-secondary" href="/don-hang/ban">Xem đơn bán</a>
+    </div>
+
+    <div class="ord-card">
+        <div class="alert alert-warning d-none mb-2" id="ordersBuyerError"></div>
+        <div class="ord-list" id="ordersBuyerList"></div>
+        <div class="d-flex justify-content-center mt-3">
+            <nav aria-label="Pagination">
+                <ul class="pagination pagination-sm mb-0" id="ordersBuyerPagination"></ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.__ESHOP_PAGE__ = "orders_buyer";
+    </script>
+}

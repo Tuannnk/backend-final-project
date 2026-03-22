@@ -1,0 +1,71 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="row g-3">
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="adm-card">
+            <div class="adm-card-label">Tổng người dùng</div>
+            <div class="adm-card-value" id="admTotalUsers">--</div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="adm-card">
+            <div class="adm-card-label">Tổng đơn hàng</div>
+            <div class="adm-card-value" id="admTotalOrders">--</div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="adm-card">
+            <div class="adm-card-label">Người dùng trong tháng</div>
+            <div class="adm-card-value" id="admUsersThisMonth">--</div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-xl-3">
+        <div class="adm-card">
+            <div class="adm-card-label">Đơn hàng trong tháng</div>
+            <div class="adm-card-value" id="admOrdersThisMonth">--</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mt-1">
+    <div class="col-12 col-xl-6">
+        <div class="adm-panel">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="adm-panel-title">Doanh thu tháng</div>
+                <div class="text-muted small" id="admMonthLabel"></div>
+            </div>
+            <div class="adm-revenue" id="admRevenueThisMonth">--</div>
+            <div class="text-muted small">Tính theo đơn không hủy.</div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-6">
+        <div class="adm-panel">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="adm-panel-title">Top danh mục bán chạy</div>
+                <a class="btn btn-sm btn-outline-secondary" href="/admin/categories">Quản lý danh mục</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Danh mục</th>
+                            <th class="text-end">Số lượng</th>
+                            <th class="text-end">Doanh thu</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admTopCategoriesBody">
+                        <tr><td colspan="3" class="text-muted">Đang tải...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.__ADMIN_PAGE__ = "dashboard";
+    </script>
+}

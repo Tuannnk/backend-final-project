@@ -125,5 +125,40 @@ namespace bandothanhli.Controllers
             await _db.SaveChangesAsync();
             return Ok(new { message = "Xóa đánh giá thành công" });
         }
+<<<<<<< HEAD
     }
 }
+=======
+
+        // GET /api/danh-gia/top-san-pham
+        [HttpGet("top-san-pham")]
+        public async Task<IActionResult> TopSanPham([FromQuery] int soLuong = 8)
+        {
+            if (soLuong < 1) soLuong = 1;
+            if (soLuong > 20) soLuong = 20;
+
+            var data = await _db.SanPhams
+                .Where(s => s.TrangThai == "dang_ban" && s.DanhGias.Any())
+                .Select(s => new
+                {
+                    s.Id,
+                    s.TieuDe,
+                    s.Gia,
+                    s.DiaDiem,
+                    DiemDanhGia = s.DanhGias.Average(d => (double)d.DiemDanhGia),
+                    SoDanhGia = s.DanhGias.Count,
+                    AnhDaiDien = s.AnhSanPhams
+                        .Where(a => a.LaAnhDaiDien)
+                        .Select(a => a.DuongDanAnh)
+                        .FirstOrDefault()
+                })
+                .OrderByDescending(x => x.DiemDanhGia)
+                .ThenByDescending(x => x.SoDanhGia)
+                .Take(soLuong)
+                .ToListAsync();
+
+            return Ok(data);
+        }
+    }
+}
+>>>>>>> origin/Tuannnk

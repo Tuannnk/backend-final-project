@@ -1,0 +1,96 @@
+<div id="accountRoot" class="acc-root">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <h1 class="acc-title m-0">Trang cá nhân</h1>
+        <div class="text-muted small">Quản lý thông tin và địa chỉ nhận hàng</div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-12 col-lg-4">
+            <div class="acc-card">
+                <div class="acc-card-title">Thông tin tài khoản</div>
+                <div class="acc-profile">
+                    <div class="acc-avatar">👤</div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold" id="accName">—</div>
+                        <div class="text-muted small" id="accEmail">—</div>
+                        <div class="text-muted small" id="accPhone">—</div>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <button class="btn btn-outline-secondary w-100" type="button" id="accRefreshBtn">Tải lại thông tin</button>
+                </div>
+
+                <div class="alert alert-warning d-none mt-3 mb-0" id="accError"></div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-8">
+            <div class="acc-card">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="acc-card-title mb-0">Địa chỉ nhận hàng</div>
+                    <button class="btn btn-eshop btn-sm" type="button" id="addrAddBtn">＋ Thêm địa chỉ</button>
+                </div>
+
+                <div class="acc-address-list" id="addrList"></div>
+
+                <div class="acc-empty d-none" id="addrEmpty">
+                    <div class="text-muted">Bạn chưa có địa chỉ nào.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="addrModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content acc-modal">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addrModalTitle">Địa chỉ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Họ tên</label>
+                            <input class="form-control" id="addrHoTen" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Số điện thoại</label>
+                            <input class="form-control" id="addrSoDienThoai" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">Đường/Phố</label>
+                            <input class="form-control" id="addrDuongPho" />
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-bold">Quận/Huyện</label>
+                            <input class="form-control" id="addrQuanHuyen" />
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label fw-bold">Tỉnh/Thành</label>
+                            <input class="form-control" id="addrTinhThanh" />
+                        </div>
+                    </div>
+
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" id="addrMacDinh" />
+                        <label class="form-check-label" for="addrMacDinh">Đặt làm mặc định</label>
+                    </div>
+
+                    <div class="alert alert-warning d-none mt-3 mb-0" id="addrModalError"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Hủy</button>
+                    <button class="btn btn-eshop" type="button" id="addrSaveBtn">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.__ESHOP_PAGE__ = "account";
+    </script>
+}

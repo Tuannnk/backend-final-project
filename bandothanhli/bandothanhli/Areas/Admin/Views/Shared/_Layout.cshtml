@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+</head>
+<body class="adm-body">
+    <div class="adm-shell">
+        <aside class="adm-sidebar">
+            <div class="adm-brand">
+                <a class="adm-brand-link" href="/admin/dashboard">EcoShop Admin</a>
+                <div class="adm-brand-sub text-muted small">Dashboard &amp; quản trị</div>
+            </div>
+
+            <nav class="adm-nav">
+                <a class="adm-nav-link" href="/admin/dashboard" data-nav="dashboard">Tổng quan</a>
+                <a class="adm-nav-link" href="/admin/users" data-nav="users">Người dùng</a>
+                <a class="adm-nav-link" href="/admin/orders" data-nav="orders">Đơn hàng</a>
+                <a class="adm-nav-link" href="/admin/categories" data-nav="categories">Danh mục</a>
+                <div class="adm-nav-sep"></div>
+                <a class="adm-nav-link" href="/" title="Về trang bán hàng">← Về cửa hàng</a>
+            </nav>
+        </aside>
+
+        <div class="adm-main">
+            <header class="adm-topbar">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="adm-title">@ViewData["Title"]</div>
+                    <span class="badge text-bg-light border" id="admRoleBadge" style="display:none;"></span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small" id="admUserName"></span>
+                    <button class="btn btn-sm btn-outline-secondary" type="button" id="admLogoutBtn">Đăng xuất</button>
+                </div>
+            </header>
+
+            <main class="adm-content">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/admin.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
